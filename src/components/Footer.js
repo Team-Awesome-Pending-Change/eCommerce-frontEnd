@@ -2,6 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+
 const FooterWrapper = styled.footer`
   background-color: #333;
   color: #fff;
@@ -19,4 +20,9 @@ const Footer = () => {
   );
 };
 
+
 export default Footer;
+
+
+
+
