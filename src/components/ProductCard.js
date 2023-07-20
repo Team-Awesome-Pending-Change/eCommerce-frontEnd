@@ -1,4 +1,4 @@
-// src/components/ProductCard.js
+//! src/components/ProductCard.js
 import React from 'react';
 import styled from 'styled-components';
 
