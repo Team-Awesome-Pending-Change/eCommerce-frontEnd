@@ -7,6 +7,9 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import ProductListing from "./pages/ProductListing";
+import Cancel from "./pages/Cancel";
+import Success from "./pages/Success";
+
 
 
 const App = () => {
@@ -26,6 +29,8 @@ const App = () => {
         <Route exact path="/" component={Home} />
         <Route path="/products/:productId" component={ProductDetail} />
         <Route path="/products" component={ProductListing} />
+        <Route path="/cancel" component={Cancel} />
+        <Route path="/success" component={Success} />
       </Routes>
       <Footer />
     </Router>
