@@ -1,35 +1,34 @@
 //! src/pages/Home.js
 import React from 'react';
+import styled from 'styled-components';
+import products from '../products';
 import ProductCard from '../components/ProductCard';
 
 
-const products = [
-  {
-    id: 1,
-    name: 'Product 1',
-    price: '$10.99',
-    // Add more product details here
-  },
-  {
-    id: 2,
-    name: 'Product 2',
-    price: '$15.99',
-    // Add more product details here
-  },
+const ProductGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
 
-];
 
 const Home = () => {
   return (
     <div>
-      <h2>Welcome to our E-Commerce Store!</h2>
-      <div>
+      <h2>Welcome to our Store!</h2>
+      <ProductGrid>
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
-      </div>
+      </ProductGrid>
     </div>
   );
 };
 
+
 export default Home;
+
+
+
+
+

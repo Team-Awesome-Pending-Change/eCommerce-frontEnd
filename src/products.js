@@ -1,19 +1,19 @@
+import hoomanHatImage from './img/hoomanHats.jpg';
+import doggoHatImage from './img/doggoHats.jpg';
+
 const products = [
   {
     id: 1,
-    name: 'Product 1',
-    price: 19.99,
-    imageUrl: 'https://example.com/product1.jpg',
-    // Add more properties as needed
+    name: 'Hooman Hat',
+    price: 29.99,
+    image: hoomanHatImage,
   },
   {
     id: 2,
-    name: 'Product 2',
-    price: 29.99,
-    imageUrl: 'https://example.com/product2.jpg',
-    // Add more properties as needed
+    name: 'Doggo Hat',
+    price: 19.99,
+    image: doggoHatImage,
   },
-  // Add more product objects as needed
 ];
 
 

@@ -1,4 +1,4 @@
-// src/App.js
+//! src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
@@ -12,9 +12,9 @@ import Success from './pages/Success';
 import Stripe from './components/Stripe';
 
 
-
 const App = () => {
   return (
+
     <div>
       <Router>
         <Helmet>

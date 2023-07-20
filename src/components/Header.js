@@ -56,9 +56,11 @@ const Header = () => {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/products">Product Details</Link>
+            <Link to="/products">Product Listings</Link>
           </li>
-          {/* Add other links as needed */}
+          <li>
+            <Link to="/products/:productId">Product Details</Link>
+          </li>
           <li>
             {/* Use an onClick handler to toggle the cart modal */}
             <Link to="/cart" onClick={handleCartIconClick}>

@@ -8,17 +8,18 @@ import products from '../products';
 const ProductListing = () => {
   return (
     <div className="product-listing">
-      <h2>Product Listing</h2>
-      <div className="product-grid">
+      <h2>Product Listings</h2>
+
         {products.map((product) => (
           <Link to={`/products/${product.id}`} key={product.id}>
             <ProductCard product={product} />
           </Link>
         ))}
-      </div>
+
     </div>
   );
 };
+
 
 export default ProductListing;
 
