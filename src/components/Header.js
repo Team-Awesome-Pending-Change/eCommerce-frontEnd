@@ -2,6 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
+
 const HeaderWrapper = styled.header`
   background-color: #333;
   color: #fff;
@@ -16,4 +17,12 @@ const Header = () => {
   );
 };
 
+
 export default Header;
+
+
+
+
+
+
+
