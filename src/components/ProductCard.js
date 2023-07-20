@@ -9,6 +9,11 @@ const Card = styled.div`
   padding: 1rem;
   width: 200px;
   margin: 1rem;
+
+  img {
+    width: 100%;
+    height: auto;
+  }
 `;
 
 const ProductCard = ({ product }) => {

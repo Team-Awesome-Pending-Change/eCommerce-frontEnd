@@ -1,5 +1,5 @@
-import hoomanHatImage from '../img/hoomanHats.jpg';
-import doggoHatImage from '../img/doggoHats.jpg';
+import hoomanHatImage from './img/hoomanHats.jpg';
+import doggoHatImage from './img/doggoHats.jpg';
 
 const products = [
   {

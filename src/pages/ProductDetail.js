@@ -1,7 +1,15 @@
 //! src/pages/ProductDetail.js
 import React from 'react';
+import styled from 'styled-components';
 import products from '../products';
+import ProductCard from '../components/ProductCard';
 // import { useParams } from 'react-router-dom'; // Uncomment this when we fetch the product details from the backend
+
+const ProductGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
 
 const ProductDetail = () => {
   // const { productId } = useParams(); // Use this to fetch the product details from the backend
@@ -18,11 +26,10 @@ const ProductDetail = () => {
   return (
     <div className="product-details">
       <h2>Product Details</h2>
-      <h2>{product.name}</h2>
-      <img src={product.imageUrl} alt={product.name} style={{ width: '200px' }} />
-      <p>{product.description}</p>
-      <p>{product.price}</p>
-      {/* add more product details here when we figure out what we can display */}
+      <ProductGrid>
+        <ProductCard product={product} />
+      </ProductGrid>
+
     </div>
   );
 };
