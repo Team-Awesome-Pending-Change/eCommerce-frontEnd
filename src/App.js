@@ -11,7 +11,6 @@ import Cancel from "./pages/Cancel";
 import Success from "./pages/Success";
 
 
-
 const App = () => {
   return (
     <Router>
@@ -26,11 +25,11 @@ const App = () => {
       </Helmet>
       <Header />
       <Routes>
-        <Route exact path="/" component={Home} />
-        <Route path="/products/:productId" component={ProductDetail} />
-        <Route path="/products" component={ProductListing} />
-        <Route path="/cancel" component={Cancel} />
-        <Route path="/success" component={Success} />
+        <Route exact path="/" element={<Home />} />
+        <Route path="/products" element={<ProductListing />} />
+        <Route path="/products/:productId" element={<ProductDetail />} />
+        <Route path="/cancel" element={<Cancel />} />
+        <Route path="/success" element={<Success />} />
       </Routes>
       <Footer />
     </Router>

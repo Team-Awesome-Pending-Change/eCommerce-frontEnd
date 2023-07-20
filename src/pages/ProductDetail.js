@@ -1,13 +1,10 @@
 //! src/pages/ProductDetail.js
 import React from 'react';
-// import { useParams } from 'react-router-dom';
+// import { useParams } from 'react-router-dom'; // Uncomment this when you fetch the product details from the backend
 
-// const ProductDetail = () => {
-//   return <h1>Product Detail Page</h1>;
-// };
 
 const ProductDetail = () => {
-  // const { productId } = useParams(); // You'll use this to fetch the product details from the backend
+  // const { productId } = useParams(); // Use this to fetch the product details from the backend
 
   // Placeholder content until you fetch actual product details
   const product = {
@@ -15,7 +12,6 @@ const ProductDetail = () => {
     name: 'Product 1',
     price: '$10.99',
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-    // Add more product details here
   };
 
   return (
@@ -23,7 +19,7 @@ const ProductDetail = () => {
       <h2>{product.name}</h2>
       <p>{product.description}</p>
       <p>{product.price}</p>
-      {/* Add more product details here */}
+      {/* Add more product details here when we figure out what we can display */}
     </div>
   );
 };
