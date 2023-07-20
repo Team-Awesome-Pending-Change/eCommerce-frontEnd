@@ -12,14 +12,14 @@ const Card = styled.div`
 `;
 
 const ProductCard = ({ product }) => {
-    //? Dummy data for the product if it's not provided via props
-    if (!product) {
-      product = {
-        id: 0,
-        name: 'Dummy Product',
-        price: '$0.00',
-      };
-    }
+  //? Dummy data for the product if it's not provided via props
+  if (!product) {
+    product = {
+      id: 0,
+      name: 'Dummy Product',
+      price: '$0.00',
+    };
+  }
 
   return (
     <Card>

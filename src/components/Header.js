@@ -1,8 +1,9 @@
 //! src/components/Header.js
-import React from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import CartIcon from './CartIcon';
+import CartModal from './CartModal';
 
 
 const HeaderWrapper = styled.header`
@@ -38,6 +39,14 @@ const HeaderWrapper = styled.header`
 `;
 
 const Header = () => {
+  // State to manage the cart modal open/closed status
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+
+  // Function to handle cart icon click and toggle the cart modal state
+  const handleCartIconClick = () => {
+    setIsCartModalOpen(!isCartModalOpen);
+  };
+
   return (
     <HeaderWrapper>
       <h1>Mythical Card-Mart</h1>
@@ -51,13 +60,17 @@ const Header = () => {
           </li>
           {/* Add other links as needed */}
           <li>
-            <Link to="/cart">
+            {/* Use an onClick handler to toggle the cart modal */}
+            <Link to="/cart" onClick={handleCartIconClick}>
               {/* Emoji icon */}
               🛒
             </Link>
           </li>
         </ul>
       </nav>
+      {/* Render the CartModal component based on the isCartModalOpen state */}
+      {isCartModalOpen && <CartModal onClose={handleCartIconClick} />}
+      {/* Pass the onClose function to CartModal to close the modal when needed */}
       <CartIcon />
     </HeaderWrapper>
   );
