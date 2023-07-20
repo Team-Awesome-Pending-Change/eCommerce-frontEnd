@@ -17,6 +17,7 @@ const Card = styled.div`
 `;
 
 const ProductCard = ({ product }) => {
+
     //? Dummy data for the product if it's not provided via props
     if (!product) {
       product = {
@@ -26,6 +27,7 @@ const ProductCard = ({ product }) => {
         price: 19.99,
       };
     }
+
 
   return (
     <Card>
