@@ -15,15 +15,17 @@ const ProductCard = ({ product }) => {
     //? Dummy data for the product if it's not provided via props
     if (!product) {
       product = {
-        id: 0,
-        name: 'Dummy Product',
-        price: '$0.00',
+        id: 2,
+        name: 'Doggo Hat',
+        image: '../public/doggoHats.jpg',
+        price: 19.99,
       };
     }
 
   return (
     <Card>
       <h3>{product.name}</h3>
+      <img src={product.image} alt={product.name} />
       <p>{product.price}</p>
       {/* You can add more product details here */}
     </Card>
