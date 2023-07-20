@@ -8,7 +8,7 @@ const ProductDetail = () => {
 
   // Placeholder content until we fetch actual product details
   // hardcoded productId for testing
-  const productId = 1;
+  const productId = 2;
   const product = products.find((product) => product.id === productId);
 
   if (!product) {
