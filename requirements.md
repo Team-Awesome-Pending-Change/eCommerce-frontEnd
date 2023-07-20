@@ -51,17 +51,17 @@ Minimum Viable Product vs
 
 *Back End Data Flow*
 
-![backEndFileSetup](https://github.com/Team-Awesome-Pending-Change/eCommerce-frontEnd/assets/109825175/5fa7e03e-164d-4d2d-8212-a2495a71a445)
+![Alt text](assets/backEndFileSetup.png)
 
 *Front End Wire Frame and Data Flow*
 
-![FinalProjectWireFrame-DataFlow](https://github.com/Team-Awesome-Pending-Change/eCommerce-frontEnd/assets/109825175/23c6597b-3923-4631-8a7a-84a3d55ad4e8)
+![Alt text](assets/FinalProjectWireFrame-DataFlow.png)
 
 When a user selects a card to be placed in the deck builder we will pass the unique id information to the deck builder page and render it in another card component with all the information displayed from the home page.  If the user decides to add the card to the cart, they will be able to do so with button functionality on each of the cards.  Either action will trigger an update to the user information in the MongoDB to be updated to persist the data of the deck or cart for that specific user.  The APIs should generate on page load and may use a cache/cookie system to hold information for a certain period of time to prevent multiple API calls.  Information within MongoDB will need to be removed as cart or deck builder is modified as well.
 
 *DB Schema Diagram*
 
-![Schema-DB-model](https://github.com/Team-Awesome-Pending-Change/eCommerce-frontEnd/assets/109825175/753fff02-984f-49c9-ba88-6f8d2489a278)
+![Alt text](assets/Schema-DB-model.png)
 
 We intend to use MongoDBs flexibility in data storage to not set our data up as tables. We want to allow user data to be stored as the above diagram represents, with information for the cart deckbuilder and user information being stored in one large object with arrays holding information for the individual categories based on what is being updated/added/deleted. This concept may be changed if the relational style of holding data is a better route for management. Data that we will be housing will be the username, email, password in the first array. The deck-builder array will hold the card id, name, description, price and instock numbers. Finally the cart array will hold the cart id, user id, items and total price of all items.
 
