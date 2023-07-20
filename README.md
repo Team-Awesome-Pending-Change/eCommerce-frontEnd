@@ -28,7 +28,7 @@ This repo will house our web app front end.  This will be created using React an
 
     - Acceptance Tests:
         - Given that a user is logged in, when they click the "Add to Cart" button, then the card will be added to their cart.
-          
+
 5. **As a newcomer to card collection, I want to be able to explore a vast inventory of cards and see cost association with building a deck**
 
      - Acceptance Tests:
