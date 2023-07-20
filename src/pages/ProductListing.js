@@ -1,4 +1,4 @@
-// src/pages/ProductListing.js
+//! src/pages/ProductListing.js
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';

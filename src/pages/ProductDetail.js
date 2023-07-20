@@ -1,4 +1,4 @@
-// src/pages/ProductDetail.js
+//! src/pages/ProductDetail.js
 import React from 'react';
 // import { useParams } from 'react-router-dom';
 

@@ -1,4 +1,4 @@
-// src/components/CartIcon.js
+//! src/components/CartIcon.js
 import React from 'react';
 import styled from 'styled-components';
 
