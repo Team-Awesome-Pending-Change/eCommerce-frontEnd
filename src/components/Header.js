@@ -1,9 +1,10 @@
-//! src/components/Header.js
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import CartIcon from './CartIcon';
-
+import CartModal from './CartModal';
+import Stripe from './Stripe';
 
 const HeaderWrapper = styled.header`
   background-color: #333;
@@ -38,6 +39,12 @@ const HeaderWrapper = styled.header`
 `;
 
 const Header = () => {
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+
+  const handleCartIconClick = () => {
+    setIsCartModalOpen(!isCartModalOpen);
+  };
+
   return (
     <HeaderWrapper>
       <h1>Mythical Card-Mart</h1>
@@ -47,13 +54,12 @@ const Header = () => {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/products">Store</Link>
+
+            <Link to="/store">Store</Link>
           </li>
-          {/* <li>
-            <Link to="/products/:productId">Product Details</Link>
-          </li> */}
           <li>
-            <Link to="/cart">
+            <Link to="/cart" onClick={handleCartIconClick}>
+
               {/* Emoji icon */}
               🛒
             </Link>
@@ -61,16 +67,12 @@ const Header = () => {
         </ul>
       </nav>
       <CartIcon />
+      <CartModal isOpen={isCartModalOpen} onClose={handleCartIconClick}>
+         {/* Render the Stripe component inside the CartModal  */}
+        <Stripe />
+      </CartModal>
     </HeaderWrapper>
   );
 };
 
-
 export default Header;
-
-
-
-
-
-
-
