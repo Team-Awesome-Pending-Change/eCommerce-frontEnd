@@ -32,7 +32,7 @@ const App = () => {
       <ThemeProvider theme={theme}>
       <GlobalStyles />
       <Header />
-      <ProductCard />
+      
       <Routes>
         <Route exact path="/" element={<Home />} />
 
