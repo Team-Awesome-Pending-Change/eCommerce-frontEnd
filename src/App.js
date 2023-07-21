@@ -26,10 +26,10 @@ const App = () => {
       <Header />
       <Routes>
         <Route exact path="/" element={<Home />} />
-        <Route path="/products" element={<ProductListing />} />
+        {/* <Route path="/products" element={<ProductListing />} /> */}
         {/* <Route path="/products/:productId" element={<ProductDetail />} /> */}
-        <Route path="/cancel" element={<Cancel />} />
-        <Route path="/success" element={<Success />} />
+        {/* <Route path="/cancel" element={<Cancel />} />
+        <Route path="/success" element={<Success />} /> */}
       </Routes>
       <Footer />
     </Router>
