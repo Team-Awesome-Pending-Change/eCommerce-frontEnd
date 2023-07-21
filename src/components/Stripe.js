@@ -10,7 +10,7 @@ const Stripe = () => {
   return (
     <StripeCheckout
       token={onToken}
-      stripeKey="pk_test_51NW4c5BPPQzpp0D4DtIPxh2LRdTkDxkKjd03TZRyZJgEh8N1OpfK1A9RiiL4cfSZ8BrtWqvquz4nX5sKhzLmDoGM00ZXQGbYcJ"
+      stripeKey={process.env.REACT_APP_STRIPE_KEY} // Use the process.env variable
     />
   );
 };

@@ -1,43 +1,31 @@
 //! src/pages/ProductDetail.js
 import React from 'react';
-import styled from 'styled-components';
-import products from '../products';
-import ProductCard from '../components/ProductCard';
-// import { useParams } from 'react-router-dom'; // Uncomment this when we fetch the product details from the backend
+// import { useParams } from 'react-router-dom';
 
-const ProductGrid = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-`;
+// const ProductDetail = () => {
+//   return <h1>Product Detail Page</h1>;
+// };
 
 const ProductDetail = () => {
-  // const { productId } = useParams(); // Use this to fetch the product details from the backend
+  // const { productId } = useParams(); // You'll use this to fetch the product details from the backend
 
-  // Placeholder content until we fetch actual product details
-  // hardcoded productId for testing
-  const productId = 2;
-  const product = products.find((product) => product.id === productId);
-
-  if (!product) {
-    return <div>Product not found</div>;
-  }
+  // Placeholder content until you fetch actual product details
+  const product = {
+    id: 1,
+    name: 'Product 1',
+    price: '$10.99',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    // Add more product details here
+  };
 
   return (
-    <div className="product-details">
-      <h2>Product Details</h2>
-      <ProductGrid>
-        <ProductCard product={product} />
-      </ProductGrid>
-
+    <div>
+      <h2>{product.name}</h2>
+      <p>{product.description}</p>
+      <p>{product.price}</p>
+      {/* Add more product details here */}
     </div>
   );
 };
 
-
 export default ProductDetail;
-
-
-
-
-
