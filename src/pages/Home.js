@@ -1,29 +1,8 @@
 //! src/pages/Home.js
 import React from "react";
 import Carousel from 'react-bootstrap/Carousel';
-import { Paper, Typography } from "@mui/material";
 
-const CarouselItem = ({ item }) => {
-  const carouselImageStyle = {
-    height: "60vh",
-    width: "100%",
-    backgroundImage: `url(${item.image})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  };
 
-  return (
-    <Paper style={carouselImageStyle}>
-      <Typography variant="h3" style={{ padding: "16px" }}>
-        {item.caption}
-      </Typography>
-    </Paper>
-  );
-};
 
 const Home = () => {
   const items = [
@@ -43,19 +22,24 @@ const Home = () => {
 
   return (
     <>
-      <Typography variant="h2">
+      <h2 variant="h2">
         Welcome to Mythical Card-Mart!
-      </Typography>
-      <Carousel>
+      </h2>
 
+      <Carousel>
         {items.map((item, i) => (
-          <CarouselItem key={i} item={item} />
-          ))}
-        <Carousel.Caption> TEST </Carousel.Caption>
+          <Carousel.Item key={i} item={item}>
+            <img 
+            src={item.image} 
+            alt={item.caption} 
+            style={{ width: '100%', height: 'auto'}}
+            />
+            <Carousel.Caption>
+              Here we host a platform to buy your favorite trading cards. Have a collection that's missing a particular card? Check out our listings to see if you can find it! If you're looking to sell, soon we also have a platform for you to sell your cards to other collectors.
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
       </Carousel>
-      <Carousel.Item variant="body1">
-        Here we host a platform to buy your favorite trading cards. Have a collection that's missing a particular card? Check out our listings to see if you can find it! If you're looking to sell, soon we also have a platform for you to sell your cards to other collectors.
-      </Carousel.Item>
     </>
   );
 };
