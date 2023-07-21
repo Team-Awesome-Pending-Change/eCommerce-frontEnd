@@ -1,17 +1,30 @@
 //! src/components/ProductCard.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 // import styled from 'styled-components';
-import axios from 'axios';
+// import axios from 'axios';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_CARDS, getCards  } from '../store/cards';
+
+const ProductCard = () => {
 
 
-const ProductCard = ({ cards }) => {
+  const  cards  = useSelector((state) => state.cards);
+  console.log('this is cards from the store: ', cards);
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getCards());
+  }, [dispatch]);
+  
+ //!! using any .property after to dig into the object is undefined, trying to fix. Reece @ 0830 7/21
+ console.log('this is the card data right before MAP function', cards);
   return (
     <>
       {/* card.length > 0 & Array.isArray(card) both work to prevent the map from firing immediately while the array is empty which causes error*/}
