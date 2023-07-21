@@ -54,7 +54,7 @@ const Header = () => {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/products">Store</Link>
+            <Link to="/store">Store</Link>
           </li>
           <li>
             <Link to="/cart" onClick={handleCartIconClick}>
