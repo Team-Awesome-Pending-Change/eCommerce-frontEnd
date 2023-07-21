@@ -4,13 +4,13 @@ import StripeCheckout from 'react-stripe-checkout';
 
 const Stripe = () => {
   const onToken = (token) => {
-    console.log(token); // You can customize the token handling logic here
+    console.log(token); 
   };
 
   return (
     <StripeCheckout
       token={onToken}
-      stripeKey={process.env.REACT_APP_STRIPE_KEY} // Use the process.env variable
+      stripeKey={process.env.REACT_APP_STRIPE_KEY}
     />
   );
 };
