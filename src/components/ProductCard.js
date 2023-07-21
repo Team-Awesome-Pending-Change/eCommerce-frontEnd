@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 
+
 const Card = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -17,7 +18,7 @@ const Card = styled.div`
 `;
 
 const ProductCard = () => {
-    const [card, setCards] = useState([]);
+    const [cards, setCards] = useState([]);
 
     useEffect(() => {
 
@@ -32,11 +33,11 @@ const ProductCard = () => {
         const getCards = async () => {
           try {
             const { data } = await axios.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Tornado%20Dragon');
-            setCards(data);
-
+            //trying to dig into the data object to get to the data array
+            setCards(data.data);
             // Save data to localStorage to prevent unnecessary API calls
             localStorage.setItem('cachedCards', JSON.stringify(data));
-            console.log('this is the card data from api: ', data);
+            console.log('this is the card data from api: ', data.data);
 
           } catch (error) {
             console.error('Error in data fetch from API: ', error);
@@ -45,16 +46,17 @@ const ProductCard = () => {
         getCards();
       }
     }, []);
-
-    console.log('this is the card data right before MAP function',card.name);
+    //
+    //!! using any .property after to dig into the object is undefined, trying to fix. Reece @ 0830 7/21
+    console.log('this is the card data right before MAP function', cards);
  return (
     <>
     {/* card.length > 0 & Array.isArray(card) both work to prevent the map from firing immediately while the array is empty which causes error*/}
-      {card.length > 0 && card.map((card) => (
+      {cards.length > 0 && cards.map((card) => (
         <Card key={card.id}>
           <h3>{card.name}</h3>
-          <img src={card.card_images[0].image_url} alt={card.name} />
-          <p>{card.card_prices[0].tcgplayer_price}</p>
+          <img src={card.card_images?.[0]?.image_url} alt={card.name} />
+          <p>{card.card_prices?.[0]?.tcgplayer_price}</p>
           {/* You can add more product details here */}
         </Card>
       ))}
