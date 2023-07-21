@@ -1,39 +1,40 @@
 //! src/components/ProductCard.js
-import React from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
+// import styled from 'styled-components';
+import axios from 'axios';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 
-const Card = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 1rem;
-  width: 200px;
-  margin: 1rem;
-
-  img {
-    width: 100%;
-    height: auto;
-  }
-`;
-
-const ProductCard = ({ product }) => {
-    //? Dummy data for the product if it's not provided via props
-    if (!product) {
-      product = {
-        id: 2,
-        name: 'Doggo Hat',
-        image: '../public/doggoHats.jpg',
-        price: 19.99,
-      };
-    }
+const ProductCard = ({ cards }) => {
 
   return (
-    <Card>
-      <h3>{product.name}</h3>
-      <img src={product.image} alt={product.name} />
-      <p>{product.price}</p>
-      {/* You can add more product details here */}
-    </Card>
+    <>
+      {/* card.length > 0 & Array.isArray(card) both work to prevent the map from firing immediately while the array is empty which causes error*/}
+      {cards.length > 0 && cards.data.map((card) => (
+        <Card key={card.id}>
+          <CardMedia
+            component="img"
+            alt={card.name}
+            image={card.card_images?.[0]?.image_url_small} />
+          <CardContent>
+            <Typography variant="h2" component="div">
+              {card.name}
+            </Typography>
+            <Typography variant="body2">{card.card_rices?.[0]?.tcgplayer_price}</Typography>
+          </CardContent>
+            {/* View Product Details button down here and add to deck(stretch goal)*/}
+          <CardActions>
+            <Button size="small">Product Details</Button>
+            <Button size="small">Add to Deck Builder</Button>
+          </CardActions>
+        </Card>
+      ))}
+    </>
   );
 };
 
