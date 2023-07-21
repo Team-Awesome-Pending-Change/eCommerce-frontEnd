@@ -20,7 +20,7 @@ const ProductCard = ({ cards }) => {
           <CardMedia
             component="img"
             alt={card.name}
-            image={card.card_images?.[0]?.image_url} />
+            image={card.card_images?.[0]?.image_url_small} />
           <CardContent>
             <Typography variant="h2" component="div">
               {card.name}
