@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import ProductListing from "./pages/ProductListing";
+import Stripe from "./components/Stripe";
 import Cancel from "./pages/Cancel";
 import Success from "./pages/Success";
 
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/cancel" element={<Cancel />} />
         <Route path="/success" element={<Success />} />
       </Routes>
+      <Stripe/>
       <Footer />
     </Router>
   );
