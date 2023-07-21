@@ -5,23 +5,22 @@ import Carousel from "react-material-ui-carousel";
 import { Paper, Typography } from "@mui/material";
 
 const useStyles = styled((theme) => ({
-  carouselImage: {
-    height: "800px",
-    width: "50%",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  carouselCaption: {
+  height: "400px", // Set the height for the carousel item
+  width: "100%", // Use 100% width to fill the carousel item
+  backgroundImage: props => `url(${props.image})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  "& .caption": {
     padding: theme.spacing(2),
   },
 }));
 
 const CarouselItem = ({ item }) => {
-  const classes = useStyles();
+  const classes = useStyles({ image: item.image });
   return (
     <Paper
       className={classes.carouselImage}
@@ -38,15 +37,15 @@ const Home = () => {
   const classes = useStyles();
   const items = [
     {
-      image: "https://unsplash.com/photos/czMeCTUJe58",
+      image: "/yugiohCards.jpg",
       caption: "Yu-Gi-Oh!",
     },
     {
-      image: "https://unsplash.com/photos/3AXHEbe9CaA",
+      image: "/pokemonCard.jpg",
       caption: "Pokemon",
     },
     {
-      image: "https://unsplash.com/photos/Vp8RnXSnJ6I",
+      image: "/magicCard.jpg",
       caption: "Magic: The Gathering",
     },
   ];
