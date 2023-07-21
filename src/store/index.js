@@ -4,7 +4,6 @@ import cartReducer from './cart';
 
 const store = () => configureStore({ 
     reducer: {
-      //bring card reducer after creation into here
       cards: cardReducer,
       cart: cartReducer
     }

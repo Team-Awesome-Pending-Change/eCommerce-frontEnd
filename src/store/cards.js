@@ -22,11 +22,13 @@ export const getCards = () => async (dispatch) => {
         return;
       }
     }
+
     // If data is expired or not in local storage, fetch from API
     let response = await axios.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Tornado%20Dragon'); //add  to grab single card
+    
     const data = response.data.data;
-
     const timestamp = new Date().getTime();
+
     // Save data to local storage
     localStorage.setItem("cachedCards", JSON.stringify({ data, timestamp }));
 
@@ -41,11 +43,11 @@ const cardSlice = createSlice({
   name: "cards",
   initialState: [],
   reducers: {
-    setCards: (state, action) => { // Update the reducer name to setCards
-      return action.payload; // Replace the state with the payload directly since it's an array
+    setCards: (state, action) => { 
+      return action.payload;
     }
   }
 });
 
-export const { setCards } = cardSlice.actions; // Update the action export to use setCards
+export const { setCards } = cardSlice.actions;
 export default cardSlice.reducer;
