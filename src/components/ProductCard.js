@@ -19,12 +19,12 @@ const ProductCard = () => {
 
   useEffect(() => {
     dispatch(getCards());
-  }, []);
+  }, []); //may need to put [dispatch] here if issues arise, currently can ignore the linter
 
  console.log('this is the card data right before MAP function', cards);
   return (
     <>
-      {/* card.length > 0 & Array.isArray(card) both work to prevent the map from firing immediately while the array is empty which causes error*/}
+
       {cards.length > 0 && cards.map((card) => (
         <Card key={card.id}>
           <CardMedia
