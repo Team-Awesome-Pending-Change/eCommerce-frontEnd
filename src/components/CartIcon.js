@@ -18,7 +18,6 @@ const IconWrapper = styled.div`
   cursor: pointer;
 `;
 
-
 const CartIcon = () => {
   return (
     <IconWrapper>
