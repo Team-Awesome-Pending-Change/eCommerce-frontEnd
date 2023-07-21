@@ -6,6 +6,7 @@ import products from '../products';
 
 const ProductListing = () => {
   return (
+
     <div className='product-listing'>
       <h2>Product Listings</h2>
       {products.map((product) => (
@@ -13,6 +14,7 @@ const ProductListing = () => {
           <ProductCard product={product} />
         </Link>
       ))}
+
     </div>
   );
 };
