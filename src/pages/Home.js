@@ -1,13 +1,13 @@
 //! src/pages/Home.js
 import React from "react";
-import { makeStyles } from "@mui/styles";
+import { styled } from "@mui/material/styles";
 import Carousel from "react-material-ui-carousel";
 import { Paper, Typography } from "@mui/material";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = styled((theme) => ({
   carouselImage: {
-    height: "400px",
-    width: "100%",
+    height: "800px",
+    width: "50%",
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
@@ -38,16 +38,16 @@ const Home = () => {
   const classes = useStyles();
   const items = [
     {
-      image: "https://source.unsplash.com/featured/?yugioh",
+      image: "https://unsplash.com/photos/czMeCTUJe58",
       caption: "Yu-Gi-Oh!",
     },
     {
-      image: "https://source.unsplash.com/featured/?magic",
-      caption: "Magic: The Gathering",
+      image: "https://unsplash.com/photos/3AXHEbe9CaA",
+      caption: "Pokemon",
     },
     {
-      image: "https://source.unsplash.com/featured/?pokemon",
-      caption: "Pokemon",
+      image: "https://unsplash.com/photos/Vp8RnXSnJ6I",
+      caption: "Magic: The Gathering",
     },
   ];
 
