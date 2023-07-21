@@ -1,63 +1,37 @@
 //! src/components/ProductCard.js
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
+// import styled from 'styled-components';
 import axios from 'axios';
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 
-const Card = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 1rem;
-  width: 200px;
-  margin: 1rem;
+const ProductCard = ({ cards }) => {
 
-  img {
-    width: 100%;
-    height: auto;
-  }
-`;
-
-const ProductCard = () => {
-    const [cards, setCards] = useState([]);
-
-    useEffect(() => {
-
-      // Check if data is available in localStorage
-      const cachedData = localStorage.getItem('cachedCards');
-      //if there is cached data, use that instead of fetching from API
-      if (cachedData) {
-        setCards(JSON.parse(cachedData));
-        console.log('this is our LS cachedData: ', JSON.parse(cachedData));
-        
-      } else {
-        const getCards = async () => {
-          try {
-            const { data } = await axios.get('https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Tornado%20Dragon');
-            //trying to dig into the data object to get to the data array
-            setCards(data.data);
-            // Save data to localStorage to prevent unnecessary API calls
-            localStorage.setItem('cachedCards', JSON.stringify(data));
-            console.log('this is the card data from api: ', data.data);
-
-          } catch (error) {
-            console.error('Error in data fetch from API: ', error);
-          }
-        };
-        getCards();
-      }
-    }, []);
-    //
-    //!! using any .property after to dig into the object is undefined, trying to fix. Reece @ 0830 7/21
-    console.log('this is the card data right before MAP function', cards);
- return (
+  return (
     <>
-    {/* card.length > 0 & Array.isArray(card) both work to prevent the map from firing immediately while the array is empty which causes error*/}
-      {cards.length > 0 && cards.map((card) => (
+      {/* card.length > 0 & Array.isArray(card) both work to prevent the map from firing immediately while the array is empty which causes error*/}
+      {cards.length > 0 && cards.data.map((card) => (
         <Card key={card.id}>
-          <h3>{card.name}</h3>
-          <img src={card.card_images?.[0]?.image_url} alt={card.name} />
-          <p>{card.card_prices?.[0]?.tcgplayer_price}</p>
-          {/* You can add more product details here */}
+          <CardMedia
+            component="img"
+            alt={card.name}
+            image={card.card_images?.[0]?.image_url} />
+          <CardContent>
+            <Typography variant="h2" component="div">
+              {card.name}
+            </Typography>
+            <Typography variant="body2">{card.card_rices?.[0]?.tcgplayer_price}</Typography>
+          </CardContent>
+            {/* View Product Details button down here and add to deck(stretch goal)*/}
+          <CardActions>
+            <Button size="small">Product Details</Button>
+            <Button size="small">Add to Deck Builder</Button>
+          </CardActions>
         </Card>
       ))}
     </>

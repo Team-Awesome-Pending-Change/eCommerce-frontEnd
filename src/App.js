@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import ProductDetail from "./pages/ProductDetail";
+// import ProductDetail from "./pages/ProductDetail";
 import ProductListing from "./pages/ProductListing";
 import Stripe from "./components/Stripe";
 import Cancel from "./pages/Cancel";
@@ -28,7 +28,7 @@ const App = () => {
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route path="/products" element={<ProductListing />} />
-        <Route path="/products/:productId" element={<ProductDetail />} />
+        {/* <Route path="/products/:productId" element={<ProductDetail />} /> */}
         <Route path="/cancel" element={<Cancel />} />
         <Route path="/success" element={<Success />} />
       </Routes>
