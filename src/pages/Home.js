@@ -1,6 +1,6 @@
 //! src/pages/Home.js
 import React from "react";
-import Carousel from "react-material-ui-carousel";
+import Carousel from 'react-bootstrap/Carousel';
 import { Paper, Typography } from "@mui/material";
 
 const CarouselItem = ({ item }) => {
