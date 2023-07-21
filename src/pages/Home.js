@@ -47,13 +47,15 @@ const Home = () => {
         Welcome to Mythical Card-Mart!
       </Typography>
       <Carousel>
+
         {items.map((item, i) => (
           <CarouselItem key={i} item={item} />
-        ))}
+          ))}
+        <Carousel.Caption> TEST </Carousel.Caption>
       </Carousel>
-      <Typography variant="body1">
+      <Carousel.Item variant="body1">
         Here we host a platform to buy your favorite trading cards. Have a collection that's missing a particular card? Check out our listings to see if you can find it! If you're looking to sell, soon we also have a platform for you to sell your cards to other collectors.
-      </Typography>
+      </Carousel.Item>
     </>
   );
 };
