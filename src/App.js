@@ -2,11 +2,13 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import { ThemeProvider } from "@mui/material/styles";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
+import theme from "./styles/themes";
+import GlobalStyles from "./styles/GlobalStyles";
 // import ProductDetail from "./pages/ProductDetail";
-// import ProductListing from "./pages/ProductListing";
 // import Cancel from "./pages/Cancel";
 // import Success from "./pages/Success";
 
@@ -23,6 +25,8 @@ const App = () => {
           rel="stylesheet"
         />
       </Helmet>
+      <ThemeProvider theme={theme}>
+      <GlobalStyles />
       <Header />
       <Routes>
         <Route exact path="/" element={<Home />} />
@@ -31,6 +35,7 @@ const App = () => {
         <Route path="/success" element={<Success />} /> */}
       </Routes>
       <Footer />
+      </ThemeProvider>
     </Router>
   );
 };
