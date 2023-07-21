@@ -15,7 +15,7 @@ import Stripe from './components/Stripe';
 const App = () => {
   return (
 
-    <div>
+    <>
       <Router>
         <Helmet>
           {/* This just makes the google font global */}
@@ -28,16 +28,16 @@ const App = () => {
         </Helmet>
         <Header />
         <Routes>
-          <Route exact path="/" component={Home} />
-          <Route path="/products/:productId" component={ProductDetail} />
-          <Route path="/products" component={ProductListing} />
-          <Route path="/cancel" component={Cancel} />
-          <Route path="/success" component={Success} />
+          <Route exact path="/" element={Home} />
+          <Route path="/products/:productId" element={ProductDetail} />
+          <Route path="/products" element={ProductListing} />
+          <Route path="/cancel" element={Cancel} />
+          <Route path="/success" element={Success} />
         </Routes>
         <Footer />
       </Router>
       <Stripe />
-    </div>
+    </>
 
   );
 };

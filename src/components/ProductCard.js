@@ -18,15 +18,15 @@ const Card = styled.div`
 
 const ProductCard = ({ product }) => {
 
-    //? Dummy data for the product if it's not provided via props
-    if (!product) {
-      product = {
-        id: 2,
-        name: 'Doggo Hat',
-        image: '../public/doggoHats.jpg',
-        price: 19.99,
-      };
-    }
+  //? Dummy data for the product if it's not provided via props
+  if (!product) {
+    product = {
+      id: 2,
+      name: 'Doggo Hat',
+      image: '../public/doggoHats.jpg',
+      price: 19.99,
+    };
+  }
 
 
   return (
