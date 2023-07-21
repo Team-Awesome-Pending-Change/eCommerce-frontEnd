@@ -54,10 +54,12 @@ const Header = () => {
             <Link to="/">Home</Link>
           </li>
           <li>
+
             <Link to="/store">Store</Link>
           </li>
           <li>
             <Link to="/cart" onClick={handleCartIconClick}>
+
               {/* Emoji icon */}
               🛒
             </Link>
