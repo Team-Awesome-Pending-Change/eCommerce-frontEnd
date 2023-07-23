@@ -4,7 +4,7 @@ import StripeCheckout from 'react-stripe-checkout';
 
 const Stripe = () => {
   const onToken = (token) => {
-    console.log(token); 
+    console.log(token);
   };
 
   return (

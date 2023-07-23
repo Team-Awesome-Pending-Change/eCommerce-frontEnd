@@ -1,12 +1,22 @@
+// store.js
 import { configureStore } from '@reduxjs/toolkit';
-import cardReducer from './cards';
-import cartReducer from './cart';
+import { combineReducers } from 'redux';
 
-const store = () => configureStore({ 
-    reducer: {
-      cards: cardReducer,
-      cart: cartReducer
-    }
+import cartSlice from './cart/index';
+import cardSlice from './cards/index';
+
+import productSlice from './products/index';
+import categoriesSlice from './categories/index';
+
+// Combining all the slices into a rootReducer
+const rootReducer = combineReducers({
+  cards: cardSlice.reducer,
+  categories: categoriesSlice.reducer,
+  products: productSlice.reducer,
+  cart: cartSlice.reducer,
 });
 
-export default store();
+// Creating the store with the combined rootReducer
+const store = configureStore({ reducer: rootReducer });
+
+export default store;
