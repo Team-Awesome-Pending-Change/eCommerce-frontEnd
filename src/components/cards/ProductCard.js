@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -6,9 +6,19 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import placeholderImage from '../../assets/placholder.jpeg';
+import CardModal from '../modals/CardModal';
 
 const ProductCard = ({ card, handleAddToCart }) => {
-  console.log('card', card);
+  const [isCardModalOpen, setCardModalOpen] = useState(false);
+
+  const openCardModal = () => {
+    setCardModalOpen(true);
+  };
+
+  const closeCardModal = () => {
+    setCardModalOpen(false);
+  };
+
   const imgUrl = card?.card_images?.[0]?.image_url || '';
 
   return (
@@ -28,9 +38,15 @@ const ProductCard = ({ card, handleAddToCart }) => {
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small" color="primary">
+        <Button size="small" color="primary" onClick={openCardModal}>
           Product Details
         </Button>
+        <CardModal
+          isOpen={isCardModalOpen}
+          onClose={closeCardModal}
+          handleAddToCart={handleAddToCart}
+          cardInfo={card}
+        />
         <Button
           size="small"
           color="primary"

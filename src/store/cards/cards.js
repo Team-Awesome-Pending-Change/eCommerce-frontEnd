@@ -12,30 +12,30 @@ export const getCardByName = createAsyncThunk(
   'cards/getCardByName',
   async (name) => {
     const response = await axios.get(
-      `http://localhost:3001/api/cards?name=${name}`,
+      `http://localhost:3001/api/cards?name=${name}`
     );
     return response.data;
-  },
+  }
 );
 
 export const getCardByType = createAsyncThunk(
   'cards/getCardByType',
   async (type) => {
     const response = await axios.get(
-      `http://localhost:3001/api/cards?type=${type}`,
+      `http://localhost:3001/api/cards?type=${type}`
     );
     return response.data;
-  },
+  }
 );
 
 export const getCardByAttribute = createAsyncThunk(
   'cards/getCardByAttribute',
   async (attribute) => {
     const response = await axios.get(
-      `http://localhost:3001/api/cards?attribute=${attribute}`,
+      `http://localhost:3001/api/cards?attribute=${attribute}`
     );
     return response.data;
-  },
+  }
 );
 
 // Slice

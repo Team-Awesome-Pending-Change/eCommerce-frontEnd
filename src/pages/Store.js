@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'; // React library and useEffect hook fo
 import { useSelector, useDispatch } from 'react-redux'; // Redux hooks for dispatching actions and accessing the state
 import styled from 'styled-components'; // For CSS in JS styling
 import ProductCard from '../components/cards/ProductCard'; // Component for displaying individual product
-import { addProductToCart } from '../store/cart'; // Action for adding product to cart
+import { addItemToCartAsync } from '../store/cart'; // Action for adding product to cart
 import {
   // Importing card-related actions
   getAllCards,
@@ -46,7 +46,7 @@ const Store = () => {
 
   // Function for handling add to cart action
   const handleAddToCart = (card) => {
-    dispatch(addProductToCart(card));
+    dispatch(addItemToCartAsync(card));
     console.log('Card added to cart: ', card);
   };
 

@@ -7,8 +7,8 @@ import { Link } from 'react-router-dom';
 import Login from '../../Auth/login';
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/system';
-import CartModal from '../../modals/CartModal';
-import Stripe from '../../Stripe';
+// import CartModal from '../../modals/CartModal';
+// import Stripe from '../../Stripe';
 import {
   Button,
   Dialog,
@@ -52,9 +52,9 @@ function MenuItems({
         <Link to="/cart" style={{ color: '#000', textDecoration: 'none' }}>
           <CartIcon /> Cart
         </Link>
-        <CartModal isOpen={isCartModalOpen} onClose={handleCartIconClick}>
-          <Stripe />
-        </CartModal>
+        {/* <CartModal isOpen={isCartModalOpen} onClose={handleCartIconClick}> */}
+        {/* <Stripe /> */}
+        {/* </CartModal> */}
       </StyledMenuItem>
       {isLoggedIn && (
         <StyledMenuItem key="profile">
