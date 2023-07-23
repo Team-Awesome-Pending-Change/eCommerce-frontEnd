@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const CartModal = ({ isOpen, onClose, children }) => { 
+const CartModal = ({ isOpen, onClose, children }) => {
   return (
     <Modal show={isOpen} onHide={onClose}>
       <Modal.Header closeButton>

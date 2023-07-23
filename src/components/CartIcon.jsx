@@ -2,7 +2,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-
 const IconWrapper = styled.div`
   position: fixed;
   bottom: 2rem;
@@ -28,8 +27,4 @@ const CartIcon = () => {
   );
 };
 
-
 export default CartIcon;
-
-
-

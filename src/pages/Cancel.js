@@ -1,7 +1,6 @@
 //! src/pages/Cancel.js
 
 function Cancel() {
-
   return (
     <div>
       <h1>Sorry to see that you cancelled your Stripe payment!</h1>
@@ -10,11 +9,3 @@ function Cancel() {
 }
 
 export default Cancel;
-
-
-
-
-
-
-
-
