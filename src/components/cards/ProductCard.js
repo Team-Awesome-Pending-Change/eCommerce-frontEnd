@@ -8,29 +8,39 @@ import Typography from '@mui/material/Typography';
 import placeholderImage from '../../assets/placholder.jpeg';
 
 const ProductCard = ({ card, handleAddToCart }) => {
-  const imgUrl = card?.card_images[0]?.image_url_small || '';
-  // const loadedImgUrl = loadDeckCards?.card_images?.image_url_small || '';
+  console.log('card', card);
+  const imgUrl = card?.card_images?.[0]?.image_url || '';
+
   return (
-    <Card key={card.id}>
+    <Card>
       <CardMedia
         component="img"
         alt={card.name}
+        height="200"
         image={imgUrl || placeholderImage}
       />
       <CardContent>
-        <Typography variant="h2" component="div">
+        <Typography gutterBottom variant="h5" component="div">
           {card.name}
         </Typography>
-        <Typography variant="body2">
+        <Typography variant="body2" color="text.secondary">
           {card.card_prices?.[0]?.tcgplayer_price}
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Product Details</Button>
-        <Button size="small" onClick={() => handleAddToCart(card)}>
+        <Button size="small" color="primary">
+          Product Details
+        </Button>
+        <Button
+          size="small"
+          color="primary"
+          onClick={() => handleAddToCart(card)}
+        >
           Add to Cart
         </Button>
-        <Button size="small">Add to Deck Builder</Button>
+        <Button size="small" color="primary">
+          Add to Deck Builder
+        </Button>
       </CardActions>
     </Card>
   );
