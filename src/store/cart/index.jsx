@@ -20,7 +20,6 @@ export const fetchAllCartsAsync = createAsyncThunk(
       const response = await axios.get(
         `${process.env.REACT_APP_SERVER}/api/cart`
       );
-      console.log('response.data: ', response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response);
@@ -35,7 +34,6 @@ export const fetchCartAsync = createAsyncThunk(
       const response = await axios.get(
         `${process.env.REACT_APP_SERVER}/api/cart/${cartId}`
       );
-      console.log('response.data: ', response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response);
@@ -43,18 +41,15 @@ export const fetchCartAsync = createAsyncThunk(
   }
 );
 
-// Redux
-export const addItemToCartAsync = createAsyncThunk(
+export const addCardToCartAsync = createAsyncThunk(
   'cart/addItemToCartAsync',
   async (cardInfo, thunkAPI) => {
     try {
-      const user = cookies.get('userCookie'); // Use the instance to get the cookie
+      const user = cookies.get('userCookie');
       const userId = user.id;
-      // console.log('userId: ', userId);
-      // console.log('cardInfo: ', cardInfo);
       const response = await axios.post(
         `${process.env.REACT_APP_SERVER}/api/cart/${userId}/addToCart`,
-        { cardInfo: cardInfo, userId: userId } // changed this line
+        { cardInfo: cardInfo, userId: userId }
       );
       return response.data;
     } catch (error) {
@@ -63,29 +58,11 @@ export const addItemToCartAsync = createAsyncThunk(
   }
 );
 
-// export const addItemToCartAsync = createAsyncThunk(
-//   'cart/addItemToCartAsync',
-//   async (cardInfo, thunkAPI) => {
-//     try {
-//       const user = cookies.get('userCookie'); // Use the instance to get the cookie
-//       const userId = user.id;
-//       console.log('userId: ', userId);
-//       const response = await axios.post(
-//         `${process.env.REACT_APP_SERVER}/api/cart/addToCart`,
-//         { userId, cardInfo }
-//       );
-//       return response.data;
-//     } catch (error) {
-//       return thunkAPI.rejectWithValue(error.response);
-//     }
-//   }
-// );
-
-export const removeItemFromCartAsync = createAsyncThunk(
+export const removeCardFromCartAsync = createAsyncThunk(
   'cart/removeItemFromCartAsync',
   async (cardId, thunkAPI) => {
     try {
-      const user = cookies.get('userCookie'); // Use the instance to get the cookie
+      const user = cookies.get('userCookie');
       const userId = user.id;
       const response = await axios.delete(
         `${process.env.REACT_APP_SERVER}/api/cart/${userId}/${cardId}`
@@ -104,6 +81,21 @@ const cartSlice = createSlice({
     toggleCartVisibility(state) {
       state.cartVisible = !state.cartVisible;
     },
+    changeCardQuantity(state, action) {
+      const { id, quantityChange } = action.payload;
+      let currentItems = [...state.cart];
+      let targetItem = currentItems.find((item) => item.key === id);
+
+      if (targetItem) {
+        targetItem.quantity += quantityChange;
+        if (targetItem.quantity === 0) {
+          currentItems = state.cart.filter((item) => item.key !== id);
+        }
+        state.cart = currentItems;
+      } else {
+        console.warn(`Item with id ${id} not found in cart`);
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -112,12 +104,11 @@ const cartSlice = createSlice({
       })
       .addCase(fetchAllCartsAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Assuming the backend returns an array of all carts
         state.allCarts = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchAllCartsAsync.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message; // handle error message
+        state.error = action.error.message;
       })
       .addCase(fetchCartAsync.pending, (state) => {
         state.status = 'loading';
@@ -130,38 +121,37 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCartAsync.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message; // handle error message
+        state.error = action.error.message;
       })
-      .addCase(addItemToCartAsync.pending, (state) => {
+      .addCase(addCardToCartAsync.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(addItemToCartAsync.fulfilled, (state, action) => {
+      .addCase(addCardToCartAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Assuming the backend returns the added item, append it to the cart array
         if (action.payload) {
           state.cart.push(action.payload);
         }
       })
-      .addCase(addItemToCartAsync.rejected, (state, action) => {
+      .addCase(addCardToCartAsync.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message; // handle error message
+        state.error = action.error.message;
       })
-      .addCase(removeItemFromCartAsync.pending, (state) => {
+      .addCase(removeCardFromCartAsync.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(removeItemFromCartAsync.fulfilled, (state, action) => {
+      .addCase(removeCardFromCartAsync.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.cart = Array.isArray(action.payload.cart)
           ? action.payload.cart
           : [];
       })
-      .addCase(removeItemFromCartAsync.rejected, (state, action) => {
+      .addCase(removeCardFromCartAsync.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.error.message; // handle error message
+        state.error = action.error.message;
       });
   },
 });
 
-export const { toggleCartVisibility } = cartSlice.actions;
+export const { toggleCartVisibility, changeCardQuantity } = cartSlice.actions;
 
 export default cartSlice;

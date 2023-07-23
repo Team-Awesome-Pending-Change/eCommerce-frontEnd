@@ -6,6 +6,8 @@ import logo from '../../../assets/navlogo.png';
 import MenuIcon from '@mui/icons-material/Menu';
 import styled from 'styled-components';
 import MenuItems from './MenuItems';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SimpleCart from '../../SimpleCart/index';
 
 const HeaderWrapper = styled(AppBar)`
   background-color: #333;
@@ -36,12 +38,10 @@ const ToolbarWrapper = styled(Toolbar)`
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const { isLoggedIn, logout } = useContext(AuthContext);
 
   const handleDrawerOpen = () => setIsOpen(true);
   const handleDrawerClose = () => setIsOpen(false);
-  const handleCartIconClick = () => setIsCartModalOpen(!isCartModalOpen);
 
   return (
     <HeaderWrapper position="static">
@@ -66,8 +66,6 @@ function Header() {
           <Drawer anchor="right" open={isOpen} onClose={handleDrawerClose}>
             <MenuItems
               isLoggedIn={isLoggedIn}
-              handleCartIconClick={handleCartIconClick}
-              isCartModalOpen={isCartModalOpen}
               logout={logout}
               handleDrawerClose={handleDrawerClose}
             />
@@ -75,8 +73,6 @@ function Header() {
           <div className="desktopMenuItems">
             <MenuItems
               isLoggedIn={isLoggedIn}
-              handleCartIconClick={handleCartIconClick}
-              isCartModalOpen={isCartModalOpen}
               logout={logout}
               handleDrawerClose={handleDrawerClose}
             />

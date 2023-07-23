@@ -131,6 +131,7 @@ function Login() {
               type="submit"
               size="medium"
               variant="contained"
+              style={{ backgroundColor: '#2d2d2d', color: '#f5f5f5' }} // Added styles
             >
               {signupMode ? 'Sign Up' : 'Login'}
             </Button>

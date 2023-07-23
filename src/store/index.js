@@ -2,14 +2,15 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
-import categoriesSlice from './categories/index';
 import cartSlice from './cart/index';
+import cardSlice from './cards/index';
+
 import productSlice from './products/index';
-import cardsSlice from './cards/cards';
+import categoriesSlice from './categories/index';
 
 // Combining all the slices into a rootReducer
 const rootReducer = combineReducers({
-  cards: cardsSlice.reducer,
+  cards: cardSlice.reducer,
   categories: categoriesSlice.reducer,
   products: productSlice.reducer,
   cart: cartSlice.reducer,

@@ -1,16 +1,10 @@
 // Importing necessary modules and components
-import React, { useEffect } from 'react'; // React library and useEffect hook for side effects
-import { useSelector, useDispatch } from 'react-redux'; // Redux hooks for dispatching actions and accessing the state
-import styled from 'styled-components'; // For CSS in JS styling
-import ProductCard from '../components/cards/ProductCard'; // Component for displaying individual product
-import { addItemToCartAsync } from '../store/cart'; // Action for adding product to cart
-import {
-  // Importing card-related actions
-  getAllCards,
-  getCardByName,
-  getCardByType,
-  getCardByAttribute,
-} from '../store/cards/cards';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import styled from 'styled-components';
+import ProductCard from '../components/cards/ProductCard';
+import { addCardToCartAsync, changeCardQuantity } from '../store/cart';
+import { getAllCards } from '../store/cards';
 
 // Styled component for the store container
 const StoreContainer = styled.div`
@@ -33,38 +27,56 @@ const StoreTitle = styled.h2`
 
 // Store component
 const Store = () => {
-  const dispatch = useDispatch(); // Hook for dispatching Redux actions
+  const cardData = useSelector((state) => state.cards);
+  console.log(cardData);
+  const cartData = useSelector((state) => state.cart);
+  console.log(cartData);
+  const dispatch = useDispatch();
 
-  // Side effect to fetch all cards once on component mount
   useEffect(() => {
-    dispatch(getAllCards())
-      .then(() => console.log('Cards fetched successfully'))
-      .catch((error) => console.log('Error fetching cards: ', error));
+    dispatch(getAllCards());
   }, [dispatch]);
 
-  const cards = useSelector((state) => state.cards); // Selecting cards from Redux state
+  const handleAddCardToCart = (card, index) => {
+    if (!card || typeof card !== 'object') {
+      console.error('Invalid product');
+      return;
+    }
 
-  // Function for handling add to cart action
-  const handleAddToCart = (card) => {
-    dispatch(addItemToCartAsync(card));
-    console.log('Card added to cart: ', card);
+    const productWithKey = {
+      ...card,
+      key: `${card.id}_${index}`,
+    };
+    console.log(productWithKey);
+    const productInCart = cartData.items?.find(
+      (item) => item.key === productWithKey.key
+    );
+
+    if (!productInCart) {
+      dispatch(addCardToCartAsync(productWithKey));
+      dispatch(
+        changeCardQuantity({ id: productWithKey.key, quantityChange: 1 })
+      );
+    } else {
+      dispatch(
+        changeCardQuantity({ id: productWithKey.id, quantityChange: 1 })
+      );
+    }
   };
 
-  // Render store container, title, and product cards
   return (
     <StoreContainer>
       <StoreTitle>Store</StoreTitle>
-      {cards &&
-        cards.map((card) => (
+      {Array.isArray(cardData.cards) &&
+        cardData.cards.map((card, index) => (
           <ProductCard
             key={card.id}
             card={card}
-            handleAddToCart={() => handleAddToCart(card)}
+            handleAddToCart={() => handleAddCardToCart(card, index)}
           />
         ))}
     </StoreContainer>
   );
 };
 
-// Export the Store component as default
 export default React.memo(Store);

@@ -19,8 +19,7 @@ import {
 } from 'react-icons/fa';
 import Image from 'material-ui-image';
 import { useDispatch } from 'react-redux';
-import { removeItemFromCartAsync, addItemToCartAsync } from '../../store/cart';
-
+import { addCardToCartAsync, removeCardFromCartAsync } from '../../store/cart';
 const CardModal = ({ isOpen, onClose, cardInfo }) => {
   const dispatch = useDispatch();
 
@@ -36,14 +35,14 @@ const CardModal = ({ isOpen, onClose, cardInfo }) => {
             <Button
               size="small"
               color="primary"
-              onClick={() => dispatch(addItemToCartAsync(cardInfo.id))}
+              onClick={() => dispatch(addCardToCartAsync(cardInfo.id))}
             >
               Add to Cart
             </Button>
             <Button
               variant="contained"
               color="secondary"
-              onClick={() => dispatch(removeItemFromCartAsync(cardInfo.id))}
+              onClick={() => dispatch(removeCardFromCartAsync(cardInfo.id))}
             >
               Remove
             </Button>

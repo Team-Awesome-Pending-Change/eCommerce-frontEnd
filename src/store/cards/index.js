@@ -38,34 +38,56 @@ export const getCardByAttribute = createAsyncThunk(
   }
 );
 
+// Asynchronously load cards from server-side API
+export const loadCardsFromAPI = () => async (dispatch) => {
+  try {
+    // Fetch all cards from the server
+    const apiResponse = await fetch('http://localhost:3001/api/cards');
+
+    // Error handling for unsuccessful fetch
+    if (!apiResponse.ok) {
+      throw new Error(`HTTP error! status: ${apiResponse.status}`);
+    }
+
+    // Parse the JSON response
+    const cardsData = await apiResponse.json();
+
+    // Dispatch loadAllProducts action to update Redux store
+    dispatch(cardSlice.actions.setCards(cardsData));
+  } catch (error) {
+    console.error('Fetching cards failed: ', error);
+  }
+};
+
 // Slice
 const cardSlice = createSlice({
   name: 'cards',
-  initialState: [],
+  initialState: { cards: [], status: 'idle', error: null },
   reducers: {
-    addCard: (state, action) => {
-      state.push(action.payload);
-    },
     setCards: (state, action) => {
-      return action.payload;
+      state.cards = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(getAllCards.fulfilled, (state, action) => {
-        state.push(...action.payload);
+        state.cards = action.payload;
+        state.status = 'succeeded';
       })
       .addCase(getCardByName.fulfilled, (state, action) => {
-        return action.payload;
+        state.cards = action.payload;
+        state.status = 'succeeded';
       })
       .addCase(getCardByType.fulfilled, (state, action) => {
-        return action.payload;
+        state.cards = action.payload;
+        state.status = 'succeeded';
       })
       .addCase(getCardByAttribute.fulfilled, (state, action) => {
-        return action.payload;
+        state.cards = action.payload;
+        state.status = 'succeeded';
       });
   },
 });
 
-export const { addCard, setCards } = cardSlice.actions;
+export const { setCards } = cardSlice.actions;
 export default cardSlice;

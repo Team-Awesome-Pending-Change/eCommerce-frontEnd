@@ -10,7 +10,7 @@ import CardModal from '../modals/CardModal';
 
 const ProductCard = ({ card, handleAddToCart }) => {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
-
+  console.log('product card', card);
   const openCardModal = () => {
     setCardModalOpen(true);
   };
