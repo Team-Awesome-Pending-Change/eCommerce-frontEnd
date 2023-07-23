@@ -2,8 +2,14 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import ProductCard from '../components/cards/ProductCard';
-import { addProductToCart } from '../store/cart'; // import your addToCart action
-import { loadProductsFromAPI } from '../store/products'; // import the action to load products
+import { addProductToCart } from '../store/cart';
+import {
+  getAllCards,
+  getCardByName,
+  getCardByType,
+  getCardByAttribute,
+} from '../store/cards/cards';
+// import Search from '../components/search/Search';
 
 const StoreContainer = styled.div`
   display: grid;
@@ -23,26 +29,28 @@ const StoreTitle = styled.h2`
 `;
 
 const Store = () => {
-  const products = useSelector((state) => state.productData.productList); // select products from Redux state
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(loadProductsFromAPI());
+    dispatch(getAllCards());
   }, [dispatch]);
 
-  const handleAddToCart = (product) => {
-    dispatch(addProductToCart(product)); // dispatch addToCart action
+  const cards = useSelector((state) => state.cards); // assuming your cards are stored directly under state.cards
+
+  const handleAddToCart = (card) => {
+    dispatch(addProductToCart(card));
   };
 
   return (
     <StoreContainer>
       <StoreTitle>Store</StoreTitle>
-      {products &&
-        products.map((product) => (
+      {/* <Search /> */}
+      {cards &&
+        cards.map((card) => (
           <ProductCard
-            key={product.id}
-            product={product}
-            handleAddToCart={() => handleAddToCart(product)}
+            key={card.id}
+            card={card}
+            handleAddToCart={() => handleAddToCart(card)}
           />
         ))}
     </StoreContainer>

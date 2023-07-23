@@ -1,58 +1,71 @@
 import axios from 'axios';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// Function to check if data is expired in local storage
-const isDataExpired = (cachedTime, expiryInHours) => {
-  const currentTime = new Date().getTime();
-  const expiryTime = cachedTime + expiryInHours * 60 * 60 * 1000; // Expiry time in milliseconds pulled from web for 12 hours
-  return currentTime >= expiryTime;
-};
+// Async actions
+export const getAllCards = createAsyncThunk('cards/getAllCards', async () => {
+  console.log('Getting all cards');
+  const response = await axios.get('http://localhost:3001/api/cards');
+  return response.data;
+});
 
-export const getCards = () => async (dispatch) => {
-  try {
-    // Check if data is in local storage
-    const cachedData = localStorage.getItem('cachedCards');
-    console.log('this is the cached data: ', JSON.parse(cachedData));
-    if (cachedData) {
-      const { data, timestamp } = JSON.parse(cachedData);
-      // Check if data is expired
-      if (!isDataExpired(timestamp, 12)) {
-        // If not expired, dispatch the data from local storage
-        dispatch(setCards(data));
-        return;
-      }
-    }
-
-    // If data is expired or not in local storage, fetch from API
-    let response = await axios.get(
-      'https://db.ygoprodeck.com/api/v7/cardinfo.php?name=Tornado%20Dragon'
-    ); //add  to grab single card
-
-    const data = response.data.data;
-    const timestamp = new Date().getTime();
-
-    // Save data to local storage
-    localStorage.setItem('cachedCards', JSON.stringify({ data, timestamp }));
-
-    dispatch(setCards(data)); // Update the dispatch to use correct data that comes from the API
-    console.log(
-      'this is the card data from the api using the getCards function: ',
-      data
+export const getCardByName = createAsyncThunk(
+  'cards/getCardByName',
+  async (name) => {
+    const response = await axios.get(
+      `http://localhost:3001/api/cards?name=${name}`,
     );
-  } catch (error) {
-    console.error('Error fetching data from the API: ', error);
-  }
-};
+    return response.data;
+  },
+);
 
+export const getCardByType = createAsyncThunk(
+  'cards/getCardByType',
+  async (type) => {
+    const response = await axios.get(
+      `http://localhost:3001/api/cards?type=${type}`,
+    );
+    return response.data;
+  },
+);
+
+export const getCardByAttribute = createAsyncThunk(
+  'cards/getCardByAttribute',
+  async (attribute) => {
+    const response = await axios.get(
+      `http://localhost:3001/api/cards?attribute=${attribute}`,
+    );
+    return response.data;
+  },
+);
+
+// Slice
 const cardSlice = createSlice({
   name: 'cards',
   initialState: [],
   reducers: {
+    addCard: (state, action) => {
+      state.push(action.payload);
+    },
     setCards: (state, action) => {
       return action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getAllCards.fulfilled, (state, action) => {
+        state.push(...action.payload);
+      })
+      .addCase(getCardByName.fulfilled, (state, action) => {
+        return action.payload;
+      })
+      .addCase(getCardByType.fulfilled, (state, action) => {
+        return action.payload;
+      })
+      .addCase(getCardByAttribute.fulfilled, (state, action) => {
+        return action.payload;
+      });
+  },
 });
 
-export const { setCards } = cardSlice.actions;
+export const { addCard, setCards } = cardSlice.actions;
 export default cardSlice;
