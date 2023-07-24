@@ -20,7 +20,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 const cookies = new Cookies();
 
 const user = cookies.get('userCookie'); // Use the instance to get the cookie
-const userId = user.id;
+// const userId = user.id;
+
+// Check if the userCookie is defined and set a default value for userId so it is not undefined
+const userId = user ? user.id : null; // Set default value to null or any
 
 function CustomTextField({ id = 'outlined', label, type }) {
   return <TextField id={id} label={label} type={type} />;
@@ -41,9 +44,12 @@ const CartPage = () => {
   }, [allCarts, setAllCarts]);
 
   useEffect(() => {
-    const userCart = allCarts.find((cart) => cart.userId === userId);
-    if (userCart) {
-      dispatch(fetchCartAsync(userCart.id));
+    // const userCart = allCarts.find((cart) => cart.userId === userId);
+    if (userId) {
+      const userCart = allCarts.find((cart) => cart.userId === userId);
+      if (userCart) {
+        dispatch(fetchCartAsync(userCart.id));
+      }
     }
   }, [dispatch, allCarts, userId]);
 
