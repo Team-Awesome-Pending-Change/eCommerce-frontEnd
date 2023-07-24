@@ -6,8 +6,8 @@ import logo from '../../../assets/navlogo.png';
 import MenuIcon from '@mui/icons-material/Menu';
 import styled from 'styled-components';
 import MenuItems from './MenuItems';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SimpleCart from '../../SimpleCart/index';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import SimpleCart from '../../SimpleCart/index';
 
 const HeaderWrapper = styled(AppBar)`
   background-color: #333;

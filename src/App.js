@@ -8,7 +8,7 @@ import Footer from './components/headings/footer/Footer';
 import Home from './pages/Home';
 import Store from './pages/Store';
 import theme from './styles/themes';
-import CartPage from './pages/Cart';
+import CartPage from './pages/CartPage';
 
 const App = () => {
   return (

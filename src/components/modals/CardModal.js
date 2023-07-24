@@ -20,7 +20,7 @@ import {
 import Image from 'material-ui-image';
 import { useDispatch } from 'react-redux';
 import { addCardToCartAsync, removeCardFromCartAsync } from '../../store/cart';
-const CardModal = ({ isOpen, onClose, cardInfo }) => {
+const CardModal = ({ isOpen, onClose, cardInfo, handleAddCardToCart }) => {
   const dispatch = useDispatch();
 
   const imgSrc = cardInfo?.card_images[0]?.image_url;
@@ -36,12 +36,14 @@ const CardModal = ({ isOpen, onClose, cardInfo }) => {
               size="small"
               color="primary"
               onClick={() => dispatch(addCardToCartAsync(cardInfo.id))}
+              // onClick={() => dispatch(handleAddCardToCart(cardInfo.id))}
             >
               Add to Cart
             </Button>
             <Button
               variant="contained"
               color="secondary"
+              // onClick={() => dispatch(removeCardFromCartAsync(cardInfo.id))}
               onClick={() => dispatch(removeCardFromCartAsync(cardInfo.id))}
             >
               Remove

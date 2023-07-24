@@ -1,4 +1,3 @@
-// store.js
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 
@@ -16,7 +15,15 @@ const rootReducer = combineReducers({
   cart: cartSlice.reducer,
 });
 
-// Creating the store with the combined rootReducer
-const store = configureStore({ reducer: rootReducer });
+// Creating the store with the combined rootReducer and middleware
+const store = configureStore({
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['cart/addItemToCartAsync/rejected'],
+      },
+    }),
+});
 
 export default store;

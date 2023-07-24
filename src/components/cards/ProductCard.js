@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import placeholderImage from '../../assets/placholder.jpeg';
 import CardModal from '../modals/CardModal';
 
-const ProductCard = ({ card, handleAddToCart }) => {
+const ProductCard = ({ card, handleAddCardToCart }) => {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   console.log('product card', card);
   const openCardModal = () => {
@@ -22,7 +22,7 @@ const ProductCard = ({ card, handleAddToCart }) => {
   const imgUrl = card?.card_images?.[0]?.image_url || '';
 
   return (
-    <Card>
+    <Card style={{ flexGrow: '1' }}>
       <CardMedia
         component="img"
         alt={card.name}
@@ -44,16 +44,17 @@ const ProductCard = ({ card, handleAddToCart }) => {
         <CardModal
           isOpen={isCardModalOpen}
           onClose={closeCardModal}
-          handleAddToCart={handleAddToCart}
+          handleAddCardToCart={handleAddCardToCart}
           cardInfo={card}
         />
         <Button
           size="small"
           color="primary"
-          onClick={() => handleAddToCart(card)}
+          onClick={() => handleAddCardToCart(card)} // assuming you also pass index as a prop
         >
           Add to Cart
         </Button>
+
         <Button size="small" color="primary">
           Add to Deck Builder
         </Button>
