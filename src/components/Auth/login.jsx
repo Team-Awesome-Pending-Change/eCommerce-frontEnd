@@ -19,7 +19,6 @@ function Login() {
   const [password, setPassword] = React.useState('');
   const [email, setEmail] = React.useState(''); // new line - Email state
   const [signupMode, setSignupMode] = React.useState(false);
-  // const [age, setAge] = useState("");
 
   const [roleData, setRoleData] = useState('');
   const [name, setName] = useState('');
@@ -114,15 +113,6 @@ function Login() {
                   variant="outlined"
                   onChange={(event) => setRoleData(event.target.value)}
                 />
-
-                {/* <TextField
-                  placeholder="Age"
-                  name="age"
-                  size="medium"
-                  type="number"
-                  variant="outlined"
-                  onChange={(event) => setAge(event.target.value)}
-                /> */}
               </>
             )}
 
