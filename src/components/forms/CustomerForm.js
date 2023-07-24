@@ -1,5 +1,3 @@
-// CustomerForm.jsx
-
 import React from 'react';
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
@@ -31,7 +29,7 @@ function CustomTextField({ id = 'outlined', label, type }) {
   );
 }
 
-const CustomerForm = ({ calculateTotalPrice }) => (
+const CustomerForm = ({ calculateTotalPrice, cardData, cartData }) => (
   <Container maxWidth={false}>
     <Box sx={{ width: '100%', padding: '2rem' }}>
       <Typography

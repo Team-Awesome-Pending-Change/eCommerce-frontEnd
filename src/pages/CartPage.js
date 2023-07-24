@@ -1,12 +1,13 @@
-// CartPage.jsx
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+  changeCardQuantity,
+  removeCardFromCartAsync,
   fetchCartAsync,
-  fetchAllCartsAsync,
-  updateCartAsync,
-} from '../store/cart';
+  // fetchAllCartsAsync,
+  pushToServerCartAsync,
+} from '../store/reducers/cart';
+import { fetchAllCartsAsync } from './store/reducers/cart';
 import { Cookies } from 'react-cookie';
 import {
   Box,
@@ -14,57 +15,91 @@ import {
   CardContent,
   Container,
 } from '@mui/material';
-import CartContent from './CartContent';
-import CustomerForm from './CustomerForm';
+import CartContent from '../components/content/CartContent';
+import CustomerForm from '../components/forms/CustomerForm';
 
 const cookies = new Cookies();
 
 const CartPage = () => {
+  const dispatch = useDispatch();
   const user = cookies.get('userCookie');
   const userId = user?.id;
 
-  const cardData = useSelector((state) => state.cards);
+  const productData = useSelector((state) => state.products);
   const cartData = useSelector((state) => state.cart.cart);
-  const dispatch = useDispatch();
-
-  const [cart, setCart] = useState(cartData);
-
-  useEffect(() => {
-    dispatch(fetchAllCartsAsync());
-  }, [dispatch]);
+  const cartState = useSelector((storefrontState) => storefrontState.cart);
+  console.log('cart state', cartState);
+  const [fetchedCartId, setFetchedCartId] = useState(null);
+  const [activeUserCartId, setActiveUserCart] = useState(null);
 
   useEffect(() => {
     if (userId) {
-      const userCart = cartData.find((cart) => cart.userId === userId);
-      if (userCart) {
-        dispatch(fetchCartAsync(userCart.id));
-        setCart(userCart);
+      dispatch(fetchAllCartsAsync({}));
+      const userCart = cartState.allCarts.find(
+        (cart) => cart.userId === userId
+      );
+      console.log('userCart', userCart);
+      console.log('cartState', cartState);
+
+      if (userCart && userCart._id !== fetchedCartId) {
+        dispatch(fetchCartAsync(userCart._id));
+        setActiveUserCart(userCart._id);
+        setFetchedCartId(userCart._id);
+      }
+
+      // If there are items in the local cart state, push those items to the server cart
+      if (cartState.cart && cartState.cart.length > 0) {
+        dispatch(pushToServerCartAsync({ userId, cart: cartState.cart }));
       }
     }
-  }, [dispatch, userId, cartData]);
+  }, [
+    dispatch,
+    userId,
+    cartState.allCarts,
+    cartState.cart,
+    fetchedCartId,
+    activeUserCartId,
+    setActiveUserCart,
+  ]);
 
-  useEffect(() => {
-    if (cart.length !== cartData.length) {
-      dispatch(updateCartAsync(cart));
+  const handleModifyItemInCart = async (event, product, operation) => {
+    const quantityChange = parseInt(event.target.value);
+    if (isNaN(quantityChange)) {
+      return;
     }
-  }, [dispatch, cart, cartData]);
-  console.log('cartData', cartData);
-  // const calculateTotalPrice = () =>
-  //   cartData.reduce((total, item) => total + item.totalPrice, 0);
-  // 	card_prices[0].tcgplayer_price
-  // const calculateTotalPrice = () =>
-  //   cartData.reduce(
-  //     (total, card) =>
-  //       total + card.card_prices[0].tcgplayer_price * card.quantity,
-  //     0
-  //   );
-  const calculateTotalPrice = () =>
-    cartData.reduce(
-      (total, item) => total + item.card_prices[0].tcgplayer_price,
-      0
-    );
-  console.log('calculateTotalPrice', calculateTotalPrice);
-  console.log('cartData', cartData);
+
+    try {
+      if (operation === 'add') {
+        await dispatch(
+          changeCardQuantity({
+            id: product.key,
+            quantityChange: quantityChange,
+          })
+        );
+      } else if (operation === 'remove') {
+        await dispatch(removeCardFromCartAsync({ id: activeUserCartId }));
+      }
+    } catch (error) {
+      console.error('Failed to adjust quantity in cart: ', error);
+    }
+  };
+
+  const calculateTotalPrice = useCallback(
+    () =>
+      cartData.reduce(
+        (total, item) =>
+          total +
+          (item.product_prices &&
+          item.product_prices.length > 0 &&
+          item.product_prices[0].tcgplayer_price
+            ? item.product_prices[0].tcgplayer_price
+            : 0) *
+            item.quantity,
+        0
+      ),
+    [cartData]
+  );
+
   return (
     <Container>
       <Box
@@ -88,6 +123,7 @@ const CartPage = () => {
                 <CartContent
                   cartData={cartData}
                   calculateTotalPrice={calculateTotalPrice}
+                  onQuantityChange={handleModifyItemInCart}
                 />
               </Box>
               <Box sx={{ flex: 1 }}>

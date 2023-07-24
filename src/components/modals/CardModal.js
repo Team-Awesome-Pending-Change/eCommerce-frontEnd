@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Box,
   Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   Grid,
@@ -18,33 +17,61 @@ import {
   FaVenusMars,
 } from 'react-icons/fa';
 import Image from 'material-ui-image';
-import { useDispatch } from 'react-redux';
-import { addCardToCartAsync, removeCardFromCartAsync } from '../../store/cart';
-const CardModal = ({ isOpen, onClose, cardInfo, handleAddCardToCart }) => {
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  handleAddToCart,
+  removeCardFromCart,
+  addCardDirectly,
+  onAddCardDirectly,
+} from '../../store/cart';
+
+const CardModal = ({ isOpen, onClose, cardInfo }) => {
+  // console.log('card modal', cardInfo);
   const dispatch = useDispatch();
 
-  const imgSrc = cardInfo?.card_images[0]?.image_url;
+  const cardData = useSelector((state) => state.cards);
+  const cartData = useSelector((state) => state.cart);
+  const cartState = useSelector((storefrontState) => storefrontState.cart);
+  // console.log('cart state', cartState);
+  // console.log('cart data', cartData);
+  // console.log('card data', cardData);
+  const handleAddCardToCart = useCallback(
+    (cardInfo) => {
+      if (cardInfo) {
+        // dispatch(handleAddToCart(cartData, cardData));
+        dispatch(addCardDirectly(cardInfo.id));
+      }
+    },
+    [dispatch, cardInfo]
+  );
+
+  const handleRemoveCardFromCart = useCallback(() => {
+    if (cardInfo) {
+      dispatch(removeCardFromCart(cardInfo.id));
+    }
+  }, [dispatch, cardInfo]);
+
+  const imgSrc = cardInfo?.card_images?.[0]?.image_url;
 
   return (
     <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{cardInfo.name}</DialogTitle>
+      <DialogTitle>{cardInfo?.name}</DialogTitle>
       <DialogContent>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <Image src={imgSrc} aspectRatio={2 / 3} />
+            {imgSrc && <Image src={imgSrc} aspectRatio={2 / 3} />}
             <Button
               size="small"
               color="primary"
-              onClick={() => dispatch(addCardToCartAsync(cardInfo.id))}
-              // onClick={() => dispatch(handleAddCardToCart(cardInfo.id))}
+              onClick={() => handleAddCardToCart(cardInfo)}
             >
               Add to Cart
             </Button>
+
             <Button
               variant="contained"
               color="secondary"
-              // onClick={() => dispatch(removeCardFromCartAsync(cardInfo.id))}
-              onClick={() => dispatch(removeCardFromCartAsync(cardInfo.id))}
+              onClick={handleRemoveCardFromCart}
             >
               Remove
             </Button>
@@ -53,35 +80,35 @@ const CardModal = ({ isOpen, onClose, cardInfo, handleAddCardToCart }) => {
             <CardDetail
               icon={<FaLevelUpAlt />}
               title="Level"
-              value={cardInfo.level}
+              value={cardInfo?.level}
             />
             <CardDetail
               icon={<FaVenusMars />}
               title="Type"
-              value={cardInfo.type}
+              value={cardInfo?.type}
             />
             <CardDetail
               icon={<FaDragon />}
               title="Race"
-              value={cardInfo.race}
+              value={cardInfo?.race}
             />
             <CardDetail
               icon={<FaRegLightbulb />}
               title="Attribute"
-              value={cardInfo.attribute}
+              value={cardInfo?.attribute}
             />
-            <CardDetail title="ATK" value={cardInfo.atk} />
+            <CardDetail title="ATK" value={cardInfo?.atk} />
             <CardDetail
               icon={<FaShieldAlt />}
               title="DEF"
-              value={cardInfo.def}
+              value={cardInfo?.def}
             />
             <CardDetail
               icon={<FaRegCopy />}
               title="Description"
-              value={cardInfo.description}
+              value={cardInfo?.description}
             />
-            <Typography>{cardInfo.desc}</Typography>
+            {cardInfo?.desc && <Typography>{cardInfo.desc}</Typography>}
           </Grid>
         </Grid>
       </DialogContent>
@@ -89,13 +116,15 @@ const CardModal = ({ isOpen, onClose, cardInfo, handleAddCardToCart }) => {
   );
 };
 
-const CardDetail = ({ icon, title, value }) => (
+const CardDetailComponent = ({ icon, title, value }) => (
   <Box display="flex" alignItems="center" my={1}>
-    {icon && icon}{' '}
+    {icon && <>{icon} </>}
     <Typography variant="h6">
       {title}: {value}
     </Typography>
   </Box>
 );
+
+const CardDetail = React.memo(CardDetailComponent);
 
 export default CardModal;

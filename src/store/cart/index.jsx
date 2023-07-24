@@ -2,116 +2,86 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Cookies } from 'react-cookie';
 
-// Create instance of Cookies
 const cookies = new Cookies();
-
+const server = process.env.REACT_APP_SERVER;
 const initialState = {
   cart: [],
   allCarts: [],
+  totalAmount: 0,
   cartVisible: false,
   status: 'idle',
   error: null,
 };
 
-export const fetchAllCartsAsync = createAsyncThunk(
-  'cart/fetchAllCartsAsync',
-  async (_, thunkAPI) => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_SERVER}/api/cart`
-      );
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response);
-    }
+const axiosGet = async (path, { userId, id }, thunkAPI) => {
+  // add id parameter
+  try {
+    path = path.replace(':userId', userId).replace(':id', id); // replace placeholders with IDs
+    const response = await axios.get(`${server}${path}`);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response);
   }
-);
+};
 
-export const fetchCartAsync = createAsyncThunk(
-  'cart/fetchCartAsync',
-  async (cartId, thunkAPI) => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_SERVER}/api/cart/${cartId}`
-      );
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response);
+// update axiosSend function to pass correct data for handleAddToCart action
+const axiosSend = async (method, path, { userId, ...data }, thunkAPI) => {
+  try {
+    const user = cookies.get('userCookie');
+    console.log('userCookie: ', user);
+    const pathWithIds = path.replace(':userId', userId).replace(':id', data.id); // replace placeholders with IDs
+    let requestData = data;
+
+    // if the request is for handleAddToCart, structure the data as expected by the server route
+    if (path.includes('addCardToCart')) {
+      requestData = { cardId: data.cardId, cartId: data.cartId };
     }
+
+    const response = await axios[method](
+      `${server}${pathWithIds}`,
+      requestData
+    );
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response);
   }
-);
+};
+const asyncActions = [
+  { name: 'fetchAllCarts', url: '/api/cart', method: 'get' },
+  {
+    name: 'fetchCart',
+    url: '/api/cart/:id/getCart', // use placeholder here
+    method: 'get',
+  },
+  {
+    name: 'handleAddToCart',
+    url: '/api/cart/:userId', // update placeholder to match server route
+    method: 'post',
+  },
+  {
+    name: 'removeCardFromCart',
+    url: '/api/cart/:userId/items/:id',
+    method: 'delete',
+  },
+  { name: 'updateCart', url: '/api/cart', method: 'put' },
+  { name: 'createCart', url: '/api/cart', method: 'post' },
+  {
+    name: 'addCardDirectlyAndUpdate',
+    url: '/api/cart',
+    method: 'put',
+  },
+];
 
-export const addCardToCartAsync = createAsyncThunk(
-  'cart/addItemToCartAsync',
-  async (cardInfo, thunkAPI) => {
-    try {
-      const user = cookies.get('userCookie');
-      const userId = user.id;
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/api/cart/${userId}/addCardToCart`,
-        { cardInfo: cardInfo, userId: userId }
-      );
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response);
-    }
-  }
-);
+const asyncThunks = asyncActions.reduce((acc, action) => {
+  const thunk = createAsyncThunk(
+    `cart/${action.name}Async`,
+    action.method === 'get'
+      ? (args, thunkAPI) => axiosGet(action.url, args, thunkAPI)
+      : (args, thunkAPI) => axiosSend(action.method, action.url, args, thunkAPI)
+  );
 
-export const removeCardFromCartAsync = createAsyncThunk(
-  'cart/removeItemFromCartAsync',
-  async (cardId, thunkAPI) => {
-    try {
-      const user = cookies.get('userCookie');
-      const userId = user.id;
-      const response = await axios.delete(
-        `${process.env.REACT_APP_SERVER}/api/cart/${userId}/${cardId}`
-      );
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response);
-    }
-  }
-);
-
-export const createCartAsync = createAsyncThunk(
-  'cart/createCartAsync',
-  async (cardInfo, { getState, rejectWithValue }) => {
-    console.log('cardInfo: ', cardInfo);
-    try {
-      const user = cookies.get('userCookie');
-      const userId = user.id;
-
-      // Get the current state of the cart from the Redux store
-      const cartData = getState().cart.cart;
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/api/cart/${userId}/addCardToCart`,
-        { userId: userId, cardInfo: cardInfo, cartData: cartData }
-      );
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response);
-    }
-  }
-);
-
-export const updateCartAsync = createAsyncThunk(
-  'cart/updateCartAsync',
-  async (cart, thunkAPI) => {
-    try {
-      const user = cookies.get('userCookie');
-      const userId = user.id;
-      const response = await axios.put(
-        `${process.env.REACT_APP_SERVER}/api/cart/${userId}`,
-        { cart: cart }
-      );
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(error.response);
-    }
-  }
-);
+  return { ...acc, [action.name]: thunk };
+}, {});
 
 const cartSlice = createSlice({
   name: 'cart',
@@ -136,27 +106,47 @@ const cartSlice = createSlice({
         state.cart.push({ ...action.payload, quantity: 1 });
       }
     },
+    removeCardFromCart(state, action) {
+      const { id } = action.payload;
+      let currentItems = [...state.cart];
+      state.cart = currentItems.filter((item) => item.key !== id);
+    },
     addCardDirectly(state, action) {
-      state.cart.push({ ...action.payload, quantity: 0 });
+      console.log('addCardDirectly action: ', action);
+      console.log('addCardDirectly state: ', state);
+      const card = action.payload;
+      const cardInCart = state.cart.find((item) => item.card === card.id);
+
+      if (cardInCart) {
+        cardInCart.quantity += 1;
+      } else {
+        let newCartItem = {
+          card: card.id,
+          quantity: 1,
+        };
+        state.cart.push(newCartItem);
+      }
+
+      state.totalPrice += card.price;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllCartsAsync.pending, (state) => {
+      .addCase(asyncThunks.fetchAllCarts.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchAllCartsAsync.fulfilled, (state, action) => {
+      .addCase(asyncThunks.fetchAllCarts.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.allCarts = Array.isArray(action.payload) ? action.payload : [];
       })
-      .addCase(fetchAllCartsAsync.rejected, (state, action) => {
+      .addCase(asyncThunks.fetchAllCarts.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
-      .addCase(fetchCartAsync.pending, (state) => {
+      .addCase(asyncThunks.fetchCart.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchCartAsync.fulfilled, (state, action) => {
+      .addCase(asyncThunks.fetchCart.fulfilled, (state, action) => {
         state.status = 'succeeded';
         if (action.payload && Array.isArray(action.payload.cart)) {
           state.cart = action.payload.cart.map((item) => item.card);
@@ -164,28 +154,27 @@ const cartSlice = createSlice({
           state.cart = [];
         }
       })
-
-      .addCase(fetchCartAsync.rejected, (state, action) => {
+      .addCase(asyncThunks.fetchCart.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
-      .addCase(addCardToCartAsync.pending, (state) => {
+      .addCase(asyncThunks.handleAddToCart.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(addCardToCartAsync.fulfilled, (state, action) => {
+      .addCase(asyncThunks.handleAddToCart.fulfilled, (state, action) => {
         state.status = 'succeeded';
         if (action.payload) {
           state.cart.push(action.payload);
         }
       })
-      .addCase(addCardToCartAsync.rejected, (state, action) => {
+      .addCase(asyncThunks.handleAddToCart.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
-      .addCase(removeCardFromCartAsync.pending, (state) => {
+      .addCase(asyncThunks.removeCardFromCart.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(removeCardFromCartAsync.fulfilled, (state, action) => {
+      .addCase(asyncThunks.removeCardFromCart.fulfilled, (state, action) => {
         state.status = 'succeeded';
         if (action.payload && Array.isArray(action.payload.cart)) {
           state.cart = action.payload.cart.map((item) => item.card);
@@ -193,14 +182,14 @@ const cartSlice = createSlice({
           state.cart = [];
         }
       })
-      .addCase(removeCardFromCartAsync.rejected, (state, action) => {
+      .addCase(asyncThunks.removeCardFromCart.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
-      .addCase(updateCartAsync.pending, (state) => {
+      .addCase(asyncThunks.updateCart.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(updateCartAsync.fulfilled, (state, action) => {
+      .addCase(asyncThunks.updateCart.fulfilled, (state, action) => {
         state.status = 'succeeded';
         if (action.payload && Array.isArray(action.payload.cart)) {
           state.cart = action.payload.cart.map((item) => item.card);
@@ -208,28 +197,62 @@ const cartSlice = createSlice({
           state.cart = [];
         }
       })
-      .addCase(updateCartAsync.rejected, (state, action) => {
+      .addCase(asyncThunks.updateCart.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
-      .addCase(createCartAsync.pending, (state) => {
+      .addCase(asyncThunks.createCart.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(createCartAsync.fulfilled, (state, action) => {
+      .addCase(asyncThunks.createCart.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Update the `allCarts` array with the newly created cart
-        if (action.payload) {
-          state.allCarts.push(action.payload);
+        if (action.payload && Array.isArray(action.payload.cart)) {
+          state.cart = action.payload.cart.map((item) => item.card);
+        } else {
+          state.cart = [];
         }
       })
-      .addCase(createCartAsync.rejected, (state, action) => {
+      .addCase(asyncThunks.createCart.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
-      });
+      })
+      .addCase(asyncThunks.addCardDirectlyAndUpdate.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(
+        asyncThunks.addCardDirectlyAndUpdate.fulfilled,
+        (state, action) => {
+          state.status = 'succeeded';
+          if (action.payload && Array.isArray(action.payload.cart)) {
+            state.cart = action.payload.cart.map((item) => item.card);
+          } else {
+            state.cart = [];
+          }
+        }
+      )
+      .addCase(
+        asyncThunks.addCardDirectlyAndUpdate.rejected,
+        (state, action) => {
+          state.status = 'failed';
+          state.error = action.error.message;
+        }
+      );
   },
 });
 
-export const { toggleCartVisibility, changeCardQuantity, addCardDirectly } =
-  cartSlice.actions;
-
+export const {
+  toggleCartVisibility,
+  changeCardQuantity,
+  removeCardFromCart,
+  addCardDirectly,
+} = cartSlice.actions;
+export const {
+  fetchAllCarts,
+  fetchCart,
+  handleAddToCart,
+  // removeCardFromCart,
+  updateCart,
+  createCart,
+  addCardDirectlyAndUpdate,
+} = asyncThunks;
 export default cartSlice;

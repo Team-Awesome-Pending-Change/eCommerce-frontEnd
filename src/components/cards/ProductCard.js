@@ -7,10 +7,57 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import placeholderImage from '../../assets/placholder.jpeg';
 import CardModal from '../modals/CardModal';
+import { useLocation } from 'react-router';
+import { makeStyles } from '@mui/styles';
+import { useSelector, useDispatch } from 'react-redux';
+import { changeCardQuantity } from '../../store/cart/Ty2';
 
-const ProductCard = ({ card, handleAddCardToCart }) => {
+const useStyles = makeStyles(() => ({
+  cardStyle: {
+    maxWidth: 345,
+    flexGrow: 1,
+    margin: '16px', // for margin
+    padding: '16px', // for padding
+  },
+}));
+
+const ProductCard = ({
+  card,
+  selectedCard,
+  // handleAddToCart,
+  handleRemoveProductFromCart,
+  cartData,
+  cardData,
+}) => {
   const [isCardModalOpen, setCardModalOpen] = useState(false);
-  console.log('product card', card);
+  const classes = useStyles();
+  // const cartData = useSelector((storefrontState) => storefrontState.cart);
+  const dispatcher = useDispatch();
+  const state = useLocation();
+  console.log('selectedCard', selectedCard);
+
+  const handleAddProductToCart = (product) => {
+    console.log('handleAddProductToCart - product: ', product);
+
+    if (!product || typeof product !== 'object') {
+      console.error('Invalid product');
+      return;
+    }
+
+    const uniqueProductId = `${product._id}_${Date.now()}_${Math.random()}`;
+    product._id = uniqueProductId;
+
+    const productInCart = cartData.items?.find(
+      (item) => item._id === product._id
+    );
+    console.log('productInCart', productInCart);
+    if (!productInCart) {
+      dispatcher(changeCardQuantity({ id: product._id, quantityChange: 1 }));
+    } else {
+      dispatcher(changeCardQuantity({ id: product._id, quantityChange: 1 }));
+    }
+  };
+
   const openCardModal = () => {
     setCardModalOpen(true);
   };
@@ -22,11 +69,11 @@ const ProductCard = ({ card, handleAddCardToCart }) => {
   const imgUrl = card?.card_images?.[0]?.image_url || '';
 
   return (
-    <Card style={{ flexGrow: '1' }}>
+    <Card className={classes.cardStyle}>
       <CardMedia
         component="img"
         alt={card.name}
-        height="200"
+        height="140"
         image={imgUrl || placeholderImage}
       />
       <CardContent>
@@ -44,17 +91,22 @@ const ProductCard = ({ card, handleAddCardToCart }) => {
         <CardModal
           isOpen={isCardModalOpen}
           onClose={closeCardModal}
-          handleAddCardToCart={handleAddCardToCart}
           cardInfo={card}
         />
         <Button
           size="small"
           color="primary"
-          onClick={() => handleAddCardToCart(card)} // assuming you also pass index as a prop
+          onClick={() => handleAddProductToCart(state.card)}
         >
           Add to Cart
         </Button>
-
+        <Button
+          size="small"
+          color="primary"
+          onClick={() => handleRemoveProductFromCart(state.card)}
+        >
+          Remove from Cart
+        </Button>
         <Button size="small" color="primary">
           Add to Deck Builder
         </Button>
