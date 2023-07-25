@@ -18,12 +18,7 @@ import {
 } from 'react-icons/fa';
 import Image from 'material-ui-image';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  handleAddToCart,
-  removeCardFromCart,
-  addCardDirectly,
-  onAddCardDirectly,
-} from '../../store/cart';
+import { asyncActions } from '../../store/reducers/cart';
 
 const CardModal = ({ isOpen, onClose, cardInfo }) => {
   // console.log('card modal', cardInfo);
@@ -39,7 +34,8 @@ const CardModal = ({ isOpen, onClose, cardInfo }) => {
     (cardInfo) => {
       if (cardInfo) {
         // dispatch(handleAddToCart(cartData, cardData));
-        dispatch(addCardDirectly(cardInfo.id));
+        // dispatch(addCardDirectly(cardInfo.id));
+        dispatch(asyncActions.addToCart(cardInfo.id));
       }
     },
     [dispatch, cardInfo]
@@ -47,7 +43,7 @@ const CardModal = ({ isOpen, onClose, cardInfo }) => {
 
   const handleRemoveCardFromCart = useCallback(() => {
     if (cardInfo) {
-      dispatch(removeCardFromCart(cardInfo.id));
+      dispatch(asyncActions.removeFromCart(cardInfo.id));
     }
   }, [dispatch, cardInfo]);
 

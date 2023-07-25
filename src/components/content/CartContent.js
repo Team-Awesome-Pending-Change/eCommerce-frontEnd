@@ -3,18 +3,37 @@ import { Box, Typography } from '@mui/material';
 import ProductCard from '../cards/ProductCard';
 
 const CartContent = ({ cartData, onQuantityChange }) => (
-  <Box sx={{ width: '100%', flexGrow: '1' }}>
-    <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: '1rem' }}>
+  <Box
+    sx={{
+      width: '100%',
+      flexGrow: '1',
+      backgroundColor: '#f8f8f8',
+      borderRadius: '5px',
+      padding: '1rem',
+    }}
+  >
+    <Typography
+      variant="h4"
+      sx={{ fontWeight: 'bold', marginBottom: '1rem', color: '#333' }}
+    >
       Your Cart
     </Typography>
-    {cartData.length > 0 ? (
-      cartData.map((card, index) => (
-        <Box key={card.id + index} sx={{ marginBottom: '1rem', flexGrow: '1' }}>
-          <ProductCard card={card} onQuantityChange={onQuantityChange} />
-        </Box>
+    {cartData && cartData.length > 0 ? (
+      (console.log('cartData', cartData),
+      cartData.map((card, index) =>
+        card && onQuantityChange ? (
+          <Box
+            key={card.id + index}
+            sx={{ marginBottom: '1rem', flexGrow: '1' }}
+          >
+            <ProductCard card={card} onQuantityChange={onQuantityChange} />
+          </Box>
+        ) : null
       ))
     ) : (
-      <Typography variant="h6">Your cart is empty.</Typography>
+      <Typography variant="h6" sx={{ color: '#666' }}>
+        Your cart is empty.
+      </Typography>
     )}
   </Box>
 );

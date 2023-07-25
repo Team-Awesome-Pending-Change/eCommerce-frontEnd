@@ -6,16 +6,21 @@ import {
   Grid,
   Container,
   Button,
+  Typography,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
-import { useReducer, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import Cards from '../cards/ProductCard';
-import {
-  getAllCards,
-  getCardByAttribute,
-  getCardByName,
-  getCardByType,
-} from '../../store/cards/TryCard';
+import { useReducer } from 'react';
+import { useDispatch } from 'react-redux';
+// import {
+//   getAllCards,
+//   getCardByAttribute,
+//   getCardByName,
+//   getCardByType,
+// } from '../../store/reducers/card';
+import ProductCard from '../cards/ProductCard';
+import axios from 'axios';
+import { updateCardData, updateCardState } from '../../store/reducers/cart';
 
 const initialState = {
   name: '',
@@ -32,26 +37,28 @@ function reducer(state, { field, value }) {
   };
 }
 
-const SearchBar = ({ onSearch, ...props }) => {
+const SearchBar = ({ filteredCards, setFilteredCards, ...props }) => {
   const dispatch = useDispatch();
-  const [state, dispatchState] = useReducer(reducer, initialState);
-
-  const cards = useSelector((state) => state.cards);
-
-  const request = async () => {
+  const [searchParams, dispatchState] = useReducer(reducer, initialState);
+  // const cards = useSelector((state) => state.cards);
+  const handleRequest = async () => {
     dispatch({ type: 'SET_LOADING_STATE', payload: true });
     try {
-      let results;
-      if (state.name) {
-        results = await dispatch(getCardByName(state.name));
-      } else if (state.type) {
-        results = await dispatch(getCardByType(state.type));
-      } else if (state.attribute) {
-        results = await dispatch(getCardByAttribute(state.attribute));
+      const response = await axios.post(
+        `${process.env.REACT_APP_SERVER}/api/cards/ygopro`,
+        searchParams
+      );
+
+      if (response.data.data) {
+        const cards = response.data.data;
+        setFilteredCards(cards);
+
+        // dispatch actions to update cardState and cardData in Redux state
+        dispatch(updateCardState(cards));
+        dispatch(updateCardData(cards));
       } else {
-        results = await dispatch(getAllCards());
+        setFilteredCards([]);
       }
-      onSearch(results);
     } catch (err) {
       console.error(err);
     } finally {
@@ -59,30 +66,42 @@ const SearchBar = ({ onSearch, ...props }) => {
     }
   };
 
+  // const handleRequest = async () => {
+  //   dispatch({ type: 'SET_LOADING_STATE', payload: true });
+  //   try {
+  //     let results;
+  //     const response = await axios.post(
+  //       `${process.env.REACT_APP_SERVER}/api/cards/ygopro`,
+  //       searchParams
+  //     );
+  //     console.log(response.data);
+  //     if (searchParams.name) {
+  //       results = await dispatch(getCardByName(searchParams.name));
+  //     } else if (searchParams.type) {
+  //       results = await dispatch(getCardByType(searchParams.type));
+  //     } else if (searchParams.attribute) {
+  //       results = await dispatch(getCardByAttribute(searchParams.attribute));
+  //     } else {
+  //       results = await dispatch(getAllCards());
+  //     }
+  //     console.log('params: ', searchParams);
+  //     if (response.data) {
+  //       setFilteredCards(response.data.data);
+  //     } else {
+  //       setFilteredCards([]);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   } finally {
+  //     dispatch({ type: 'SET_LOADING_STATE', payload: false });
+  //   }
+  // };
+
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      request();
+      handleRequest();
     }
   };
-
-  const handleChange =
-    (name) =>
-    ({ target: { value } }) => {
-      dispatchState({
-        field: name,
-        value: value.toLowerCase() === 'unset' ? '' : value,
-      });
-    };
-
-  const CustomSelector = ({ values, name }) => (
-    <Select defaultValue="Unset" onChange={handleChange(name)}>
-      {values.map((value) => (
-        <MenuItem key={value} value={value}>
-          {value}
-        </MenuItem>
-      ))}
-    </Select>
-  );
 
   const levels = [
     'Unset',
@@ -112,39 +131,72 @@ const SearchBar = ({ onSearch, ...props }) => {
     'Wind',
   ];
 
+  const handleChange =
+    (name) =>
+    ({ target: { value } }) => {
+      dispatchState({
+        field: name,
+        value: value.toLowerCase() === 'unset' ? '' : value,
+      });
+    };
+  console.log('filteredCards: ', filteredCards);
+  const renderCustomSelector = (label, name, values) => (
+    <Grid item xs={12} sm={6} md={3}>
+      <FormControl fullWidth variant="filled">
+        <InputLabel id={name}>{label}</InputLabel>
+        <Select
+          labelId={name}
+          defaultValue="Unset"
+          onChange={handleChange(name)}
+        >
+          {values.map((value) => (
+            <MenuItem key={value} value={value}>
+              {value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Grid>
+  );
+  console.log('filteredCards: ', filteredCards);
   return (
-    <Box sx={{ overflowY: 'scroll', height: '20vh', borderRadius: 'lg' }}>
-      <Container sx={{ py: 5 }}>
-        <Grid container spacing={2} alignItems="center" justifyContent={'left'}>
+    <Box
+      sx={{ padding: 2, overflowY: 'scroll', height: '20vh', borderRadius: 2 }}
+    >
+      <Container maxWidth="md">
+        <Typography variant="h4" align="center" gutterBottom>
+          Search Cards
+        </Typography>
+        <Grid container spacing={2}>
           <Grid item xs={12}>
             <Input
-              type="text"
+              fullWidth
               placeholder="Type card name"
               onChange={handleChange('name')}
               onKeyDown={handleKeyDown}
             />
           </Grid>
-          <Grid item xs={3}>
-            <CustomSelector values={levels} name="level" />
-          </Grid>
-          <Grid item xs={3}>
-            <CustomSelector values={races} name="race" />
-          </Grid>
-          <Grid item xs={3}>
-            <CustomSelector values={types} name="type" />
-          </Grid>
-          <Grid item xs={3}>
-            <CustomSelector values={attributes} name="attribute" />
-          </Grid>
+          {renderCustomSelector('Level', 'level', levels)}
+          {renderCustomSelector('Race', 'race', races)}
+          {renderCustomSelector('Type', 'type', types)}
+          {renderCustomSelector('Attribute', 'attribute', attributes)}
           <Grid item xs={12}>
-            <Button onClick={request}>Search</Button>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={handleRequest}
+            >
+              Search
+            </Button>
           </Grid>
         </Grid>
-
-        <Grid container spacing={10}>
-          {Array.isArray(cards) &&
-            cards.map((card, index) => (
-              <Cards key={card.id} cardInfo={card} index={index} {...props} />
+        <Grid container spacing={2}>
+          {Array.isArray(filteredCards) &&
+            filteredCards.map((card, index) => (
+              <Grid item key={card.id} xs={12} sm={6} md={4}>
+                <ProductCard cardInfo={card} index={index} {...props} />
+              </Grid>
             ))}
         </Grid>
       </Container>
