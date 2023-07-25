@@ -77,9 +77,9 @@ const App = () => {
         />
       </Helmet>
       <ThemeProvider theme={theme}>
-        <Header />
+        <Header data-testid="header" />
         <Routes>
-          <Route exact path="/" element={<Home />} />
+          <Route exact path="/" element={<Home data-testid="home-page" />} />
           <Route exact path="/home" element={<Home />} />
           <Route
             exact
@@ -102,7 +102,8 @@ const App = () => {
             }
           />
         </Routes>
-        <Footer />
+        {/* eslint-disable-next-line prettier/prettier */}
+        <Footer data-testid="footer"/>
       </ThemeProvider>
     </Router>
   );
