@@ -5,6 +5,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from 'react-router-dom';
 import Login from '../../Auth/login';
+
 import MenuItem from '@mui/material/MenuItem';
 import { styled } from '@mui/system';
 // import CartModal from '../../modals/CartModal';
@@ -16,6 +17,7 @@ import {
   DialogTitle,
   DialogActions,
 } from '@mui/material';
+import DeckOfCardsIcon from './DeckOfCardsIcon';
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   '& .MuiTypography-root': {
@@ -45,6 +47,16 @@ function MenuItems({
         <StyledMenuItem key="store">
           <Link to="/store" style={{ color: '#000', textDecoration: 'none' }}>
             <StoreIcon /> Store
+          </Link>
+        </StyledMenuItem>
+      )}
+      {isLoggedIn && (
+        <StyledMenuItem key="deckbuilder">
+          <Link
+            to="/deckbuilder"
+            style={{ color: '#000', textDecoration: 'none' }}
+          >
+            <DeckOfCardsIcon /> Deck Builder
           </Link>
         </StyledMenuItem>
       )}

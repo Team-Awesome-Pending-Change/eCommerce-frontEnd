@@ -50,10 +50,10 @@ export const loadCardsFromAPI = () => async (dispatch) => {
     }
 
     // Parse the JSON response
-    const cardsData = await apiResponse.json();
-
+    const cardData = await apiResponse.json();
+    console.log('cardData: ', cardData);
     // Dispatch loadAllProducts action to update Redux store
-    dispatch(cardSlice.actions.setCards(cardsData));
+    dispatch(cardSlice.actions.setCards(cardData));
   } catch (error) {
     console.error('Fetching cards failed: ', error);
   }

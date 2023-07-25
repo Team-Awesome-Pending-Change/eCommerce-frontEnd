@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Drawer, Button, Typography, Container, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import cartSlice, {
-  addCardToCartAsync,
+  handleAddToCart,
   removeCardFromCartAsync,
 } from '../../store/cart';
 
