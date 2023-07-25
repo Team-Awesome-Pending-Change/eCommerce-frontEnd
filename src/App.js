@@ -102,6 +102,7 @@ const App = () => {
             }
           />
         </Routes>
+        {/* eslint-disable-next-line prettier/prettier */}
         <Footer data-testid="footer"/>
       </ThemeProvider>
     </Router>

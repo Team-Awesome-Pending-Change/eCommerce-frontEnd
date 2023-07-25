@@ -1,53 +1,48 @@
-import { render, screen } from '@testing-library/react';
-import App from './App';
-
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render } from 'react-dom';
 import { MemoryRouter } from 'react-router-dom';
 import App from './App';
 
 test('renders header, footer, and home page by default', () => {
+  const container = document.createElement('div');
   render(
     <MemoryRouter>
       <App />
-    </MemoryRouter>
+    </MemoryRouter>,
+    container
   );
 
-
-  const headerElement = screen.getByTestId('header');
-  const footerElement = screen.getByTestId('footer');
+  const headerElement = container.querySelector('[data-testid="header"]');
+  const footerElement = container.querySelector('[data-testid="footer"]');
   expect(headerElement).toBeInTheDocument();
   expect(footerElement).toBeInTheDocument();
 
-  const homePageElement = screen.getByTestId('home-page');
+  const homePageElement = container.querySelector('[data-testid="home-page"]');
   expect(homePageElement).toBeInTheDocument();
-
 });
 
 test('renders store page when "/store" route is accessed', () => {
+  const container = document.createElement('div');
   render(
     <MemoryRouter initialEntries={['/store']}>
       <App />
-    </MemoryRouter>
+    </MemoryRouter>,
+    container
   );
 
-  // Check if the store page is rendered when "/store" route is accessed
-  const storePageElement = screen.getByTestId('store-page');
+  const storePageElement = container.querySelector('[data-testid="store-page"]');
   expect(storePageElement).toBeInTheDocument();
-
-  // Additional checks for specific elements on the store page can be added if needed
 });
 
 test('renders cart page when "/cart" route is accessed', () => {
+  const container = document.createElement('div');
   render(
     <MemoryRouter initialEntries={['/cart']}>
       <App />
-    </MemoryRouter>
+    </MemoryRouter>,
+    container
   );
 
-  // Check if the cart page is rendered when "/cart" route is accessed
-  const cartPageElement = screen.getByTestId('cart-page');
+  const cartPageElement = container.querySelector('[data-testid="cart-page"]');
   expect(cartPageElement).toBeInTheDocument();
-
-  // Additional checks for specific elements on the cart page can be added if needed
 });

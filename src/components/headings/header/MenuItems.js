@@ -16,6 +16,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogActions,
+  Typography,
 } from '@mui/material';
 import DeckOfCardsIcon from './DeckOfCardsIcon';
 
@@ -80,7 +81,7 @@ function MenuItems({
       )}
       {isLoggedIn ? (
         <Button variant="outlined" onClick={logout} endIcon={<LogoutIcon />}>
-          Logout
+          <Typography color="red">Logout</Typography>
         </Button>
       ) : (
         <Dialog open={!isLoggedIn} onClose={handleDrawerClose}>
