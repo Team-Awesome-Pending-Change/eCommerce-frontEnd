@@ -1,11 +1,24 @@
 import { configureStore } from '@reduxjs/toolkit';
-import cardSlice from './reducers/card';
-import { customMiddleware } from './middleware';
-import cartSlice from './cart';
+import thunk from 'redux-thunk';
+
+import cardReducer, {
+  loadCardsFromAPI,
+  adjustStockOnAddingToCart,
+  addCardToDatabase,
+  deleteCardFromDatabase,
+} from './reducers/card';
+import cartReducer, { asyncActions } from './reducers/cart';
+
+const {
+  addToCart,
+  removeItemFromCart,
+  getAllCartsAndFindUserCart,
+  updateCart,
+} = asyncActions;
 
 const rootReducer = {
-  cards: cardSlice.reducer,
-  cart: cartSlice.reducer,
+  cards: cardReducer,
+  carts: cartReducer,
 };
 
 const store = configureStore({
@@ -15,10 +28,22 @@ const store = configureStore({
       serializableCheck: {
         ignoredActions: [
           'cart/addItemToCartAsync/rejected',
-          'cart/addCardToCartAsync/rejected', // Add this line
+          'cart/addCardToCartAsync/rejected',
         ],
       },
-    }).concat(customMiddleware), // add your custom middleware here
+    }).concat(thunk),
 });
 
 export default store;
+
+// Expose these actions for use in your components
+export {
+  loadCardsFromAPI,
+  adjustStockOnAddingToCart,
+  addCardToDatabase,
+  deleteCardFromDatabase,
+  addToCart,
+  removeItemFromCart,
+  getAllCartsAndFindUserCart,
+  updateCart,
+};

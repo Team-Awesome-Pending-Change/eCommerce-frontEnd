@@ -17,9 +17,8 @@ function Login() {
 
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [email, setEmail] = React.useState(''); // new line - Email state
+  const [email, setEmail] = React.useState('');
   const [signupMode, setSignupMode] = React.useState(false);
-
   const [roleData, setRoleData] = useState('');
   const [name, setName] = useState('');
 
@@ -29,17 +28,17 @@ function Login() {
       await authContext.signup(
         username,
         password,
-        email, // new line - Pass email to signup function
-        {
-          name,
-        },
-        {
-          name: roleData, // assuming roleData is a string representing role name
-        }
+        email,
+        { name },
+        { name: roleData }
       );
     } else {
       try {
-        await authContext.login(username, password);
+        const loggedIn = await authContext.login(username, password);
+        if (loggedIn) {
+          // Store login status in local storage
+          localStorage.setItem('isLoggedIn', 'true');
+        }
       } catch (error) {
         console.error('Login failed:', error);
       }
@@ -47,7 +46,10 @@ function Login() {
   };
 
   useEffect(() => {
-    if (authContext.isLoggedIn) {
+    if (
+      authContext.isLoggedIn ||
+      localStorage.getItem('isLoggedIn') === 'true'
+    ) {
       navigate('/profile');
     }
   }, [authContext.isLoggedIn, navigate]);

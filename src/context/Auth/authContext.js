@@ -1,23 +1,27 @@
 import React, { useEffect, useCallback } from 'react';
-import cookie from 'react-cookies';
 import jwt_decode from 'jwt-decode';
 import axios from 'axios';
+// import { useDispatch } from 'react-redux';
+// import { loadSavedCards } from '../../store/reducers/cart';
+import { useCookies } from 'react-cookie';
 
 export const AuthContext = React.createContext();
 
 export default function AuthProvider(props) {
+  const [cookies, setCookie, removeCookie] = useCookies(['auth', 'userCookie']);
+
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [user, setUser] = React.useState({ capabilities: [] });
   const [error, setError] = React.useState(null);
   const [token, setToken] = React.useState(undefined);
   const REACT_APP_SERVER = process.env.REACT_APP_SERVER;
 
+  // Use dispatch in the top level of your component
+  // const dispatch = useDispatch();
   const setLoginState = (loggedIn, token, user, error) => {
-    cookie.save('auth', token);
-    // when setting the cookie:
-    console.log('Setting userCookie...');
-    cookie.save('userCookie', user);
-    console.log('userCookie set to: ', cookie.load('userCookie'));
+    setCookie('auth', token);
+    // when setting the userCookie:
+    setCookie('userCookie', user);
     setIsLoggedIn(loggedIn);
     setToken(token);
     setUser(user);
@@ -50,7 +54,6 @@ export default function AuthProvider(props) {
     user?.login_data?.role_data?.capabilities?.includes(capability);
 
   const login = async (username, password) => {
-    // Create a login_data object to send to server
     const login_data = { username, password };
 
     try {
@@ -60,6 +63,10 @@ export default function AuthProvider(props) {
       );
       console.log('Login response: ', response.data);
       validateToken(response.data.token);
+      console.log('response', response.data);
+      // Dispatch the loadSavedCards action after successfully logging in
+      // dispatch(loadSavedCards(response.data._id)); // replace `id` with your user id field
+
       return response.data.token;
     } catch (error) {
       console.error('Login error: ', error);
@@ -93,22 +100,35 @@ export default function AuthProvider(props) {
   };
 
   const logout = () => {
-    cookie.remove('auth');
+    removeCookie('auth');
+    removeCookie('userCookie');
     setLoginState(false, null, {});
   };
 
   useEffect(() => {
     const qs = new URLSearchParams(window.location.search);
-    const cookieToken = cookie.load('auth');
-    const tokenCheck = qs.get('token') || cookieToken || null;
+    const tokenCheck = qs.get('token') || cookies.auth || null;
     validateToken(tokenCheck);
   }, [validateToken]);
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, can, login, logout, signup, user, error, token }}
+      value={{
+        isLoggedIn,
+        can,
+        login,
+        logout,
+        signup,
+        user,
+        userId: user.id,
+        error,
+        token,
+      }}
     >
       {props.children}
     </AuthContext.Provider>
   );
 }
+
+// module.exports = AuthContext;
+// module.exports = { AuthProvider, AuthContext };

@@ -1,142 +1,123 @@
 import axios from 'axios';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { Cookies } from 'react-cookie';
 
-// Async actions
-export const getAllCards = createAsyncThunk('cards/getAllCards', async () => {
-  const response = await axios.get('http://localhost:3001/api/cards');
-  return response.data;
-});
+const cookies = new Cookies();
+const server = process.env.REACT_APP_SERVER;
+const initialState = {
+  cards: [],
+  status: 'idle',
+  error: null,
+};
 
-export const getCardByName = createAsyncThunk(
-  'cards/getCardByName',
-  async (name) => {
-    const response = await axios.get(
-      `http://localhost:3001/api/cards?name=${name}`
-    );
-    return response.data;
-  }
-);
+const axiosGet = (path, { id }) => {
+  const userId = cookies.get('userCookie');
+  return axios
+    .get(`${server}${path.replace('${userId}', userId).replace('${id}', id)}`)
+    .then((response) => {
+      const { data } = response;
+      return data.cards.map(({ card, quantity }) => ({
+        id: card._id,
+        ...card,
+        quantity,
+      }));
+    });
+};
 
-export const getCardByType = createAsyncThunk(
-  'cards/getCardByType',
-  async (type) => {
-    const response = await axios.get(
-      `http://localhost:3001/api/cards?type=${type}`
-    );
-    return response.data;
-  }
-);
-
-export const getCardByAttribute = createAsyncThunk(
-  'cards/getCardByAttribute',
-  async (attribute) => {
-    const response = await axios.get(
-      `http://localhost:3001/api/cards?attribute=${attribute}`
-    );
-    return response.data;
-  }
-);
-
-// Asynchronously load cards from server-side API
-export const loadCardsFromAPI = createAsyncThunk(
-  'cards/loadCardsFromAPI',
-  async () => {
-    const response = await axios.get('http://localhost:3001/api/cards');
-    if (response.status !== 200) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+const axiosSend = (method, path, { ...data }) => {
+  const userId = cookies.get('userCookie');
+  const url = `${server}${path
+    .replace('${userId}', userId)
+    .replace('${id}', data.id)
+    .replace('${cardId}', data.cardId)}`;
+  return axios[method](url, { card: data.id, quantity: data.quantity }).then(
+    (response) => {
+      const { data } = response;
+      return data.cards.map(({ card, quantity }) => ({
+        id: card._id,
+        ...card,
+        quantity,
+      }));
     }
-    return response.data;
-  }
-);
+  );
+};
 
-// Asynchronously adjust card stock on server-side database when adding to cart
-export const adjustStockOnAddingToCart = createAsyncThunk(
-  'cards/adjustStockOnAddingToCart',
-  async (cardId) => {
-    const response = await axios.get(
-      `http://localhost:3001/api/cards/${cardId}`
-    );
-    const cardDetails = response.data;
+const asyncActionDefinitions = [
+  { name: 'loadCardsFromAPI', url: '/api/cards', method: 'get' },
+  { name: 'adjustStockOnAddingToCart', url: '/api/cards/${id}', method: 'put' },
+  { name: 'addCardToDatabase', url: '/api/cards', method: 'post' },
+  { name: 'deleteCardFromDatabase', url: '/api/cards/${id}', method: 'delete' },
+  { name: 'updateCardStock', url: '/api/cards/${id}/stock', method: 'put' },
+];
 
-    if (cardDetails.inStock <= 0) {
-      throw new Error('This card is out of stock');
-    } else {
-      const updatedDetails = { inStock: cardDetails.inStock - 1 };
-      await axios.put(
-        `http://localhost:3001/api/cards/${cardId}`,
-        updatedDetails
-      );
-    }
-  }
-);
+const asyncThunks = asyncActionDefinitions.reduce((acc, action) => {
+  const thunk = createAsyncThunk(
+    `cards/${action.name}Async`,
+    action.method === 'get'
+      ? (args) => axiosGet(action.url, args)
+      : (args) => axiosSend(action.method, action.url, args)
+  );
+  return { ...acc, [action.name]: thunk };
+}, {});
 
-// Asynchronously add a new card to the server-side database
-export const addCardToDatabase = createAsyncThunk(
-  'cards/addCardToDatabase',
-  async (cardData) => {
-    const response = await axios.post(
-      'http://localhost:3001/api/cards',
-      cardData
-    );
-    return response.data;
-  }
-);
-
-// Asynchronously delete card from server-side database
-export const deleteCardFromDatabase = createAsyncThunk(
-  'cards/deleteCardFromDatabase',
-  async (cardId) => {
-    const response = await axios.delete(
-      `http://localhost:3001/api/cards/${cardId}`
-    );
-    if (response.status !== 200) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    return response.data;
-  }
-);
-
-// Slice
-const cardSlice = createSlice({
+const cardsSlice = createSlice({
   name: 'cards',
-  initialState: { cards: [], status: 'idle', error: null },
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(loadCardsFromAPI.fulfilled, (state, action) => {
-        state.cards = action.payload;
-        state.status = 'succeeded';
-      })
-      .addCase(getAllCards.fulfilled, (state, action) => {
-        state.cards = action.payload;
-        state.status = 'succeeded';
-      })
-      .addCase(getCardByName.fulfilled, (state, action) => {
-        state.cards = action.payload;
-        state.status = 'succeeded';
-      })
-      .addCase(getCardByType.fulfilled, (state, action) => {
-        state.cards = action.payload;
-        state.status = 'succeeded';
-      })
-      .addCase(getCardByAttribute.fulfilled, (state, action) => {
-        state.cards = action.payload;
-        state.status = 'succeeded';
-      })
-      .addCase(adjustStockOnAddingToCart.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-      })
-      .addCase(addCardToDatabase.fulfilled, (state, action) => {
-        state.cards = [...state.cards, action.payload];
-        state.status = 'succeeded';
-      })
-      .addCase(deleteCardFromDatabase.fulfilled, (state, action) => {
-        state.cards = state.cards.filter(
-          (card) => card.id !== action.payload.id
-        );
-        state.status = 'succeeded';
-      });
+      .addMatcher(
+        (action) =>
+          action.type.startsWith('cards/') && action.type.endsWith('/pending'),
+        (state) => {
+          state.status = 'loading';
+        }
+      )
+      .addMatcher(
+        (action) =>
+          action.type.startsWith('cards/') &&
+          action.type.endsWith('/fulfilled'),
+        (state, action) => {
+          state.status = 'succeeded';
+          state.cards = action.payload;
+        }
+      )
+      .addMatcher(
+        (action) =>
+          action.type.startsWith('cards/') && action.type.endsWith('/rejected'),
+        (state, action) => {
+          state.status = 'failed';
+          state.error = action.error.message;
+        }
+      )
+      .addMatcher(
+        (action) => action.type === 'cards/updateCardStockAsync/fulfilled',
+        (state, action) => {
+          // Find the card in the state that matches the updated one
+          const existingCard = state.cards.find(
+            (card) => card.id === action.payload.id
+          );
+          if (existingCard) {
+            // Update the stock property of the card
+            existingCard.stock = action.payload.stock;
+          }
+        }
+      );
   },
 });
 
-export default cardSlice;
+export const {
+  loadCardsFromAPI,
+  adjustStockOnAddingToCart,
+  addCardToDatabase,
+  deleteCardFromDatabase,
+} = asyncThunks;
+
+export const asyncActions = {
+  loadCardsFromAPI: asyncThunks.loadCardsFromAPI,
+  adjustStockOnAddingToCart: asyncThunks.adjustStockOnAddingToCart,
+  addCardToDatabase: asyncThunks.addCardToDatabase,
+  deleteCardFromDatabase: asyncThunks.deleteCardFromDatabase,
+};
+
+export default cardsSlice.reducer;
