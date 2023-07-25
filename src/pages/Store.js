@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import ProductCard from '../components/cards/ProductCard';
-import {
-  addCardToCartAsync,
-  changeCardQuantity,
-  removeCardFromCartAsync,
-  removeCardFromCart,
-  cartAsyncActions,
-} from '../store/reducers/cart';
-// import SearchBar from '../components/search/SearchBar';
 import { Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { loadCardsFromAPI } from '../store/reducers/card';
+import { useCookies } from 'react-cookie';
+import ProductCard from '../components/cards/ProductCard';
 import SearchBar from '../components/search/SearchBar';
+import {
+  asyncActions,
+  asyncActions as cartActions,
+} from '../store/reducers/cart';
+import axios from 'axios';
 
 const useStyles = makeStyles(() => ({
   gridItem: {
@@ -43,106 +40,161 @@ const ProductsGrid = styled(Grid)`
 
 const Store = () => {
   const [filteredCards, setFilteredCards] = useState([]);
+  const [cookies] = useCookies(['userCookie']);
+
   const classes = useStyles();
-
+  const [hasSearched, setHasSearched] = useState(false);
+  const [cartId, setCartId] = useState(null);
   const cardData = useSelector((storefrontState) => storefrontState.cards);
-  const cart = useSelector((storefrontState) => storefrontState.cart);
+  const cartData = useSelector((storefrontState) => storefrontState.cart);
+  console.log('cartData', cartData);
   const dispatch = useDispatch();
-  console.log('cards', cardData);
-  // console.log('cart', cart);
 
-  const handleAddToCart = (card, index) => {
-    if (!card || typeof card !== 'object') {
-      console.error('Invalid product');
-      return;
-    }
+  const userId = cookies.userCookie;
 
-    const cardWithKey = {
-      ...cardData,
-      key: `${index}_${Math.random()}`,
-    };
-
-    const cardInCart =
-      Array.isArray(cardData.items) &&
-      cardData.items.find((item) => item.key === cardWithKey.key);
-    console.log('productInCart', cardInCart);
+  const getAllCartsAndFindUserCart = async (userId) => {
     try {
-      if (!cardInCart) {
-        dispatch(cartAsyncActions.handleAddToCart(cardWithKey)); // For adding a card to cart
-        dispatch(
-          changeCardQuantity({ id: cardWithKey.key, quantityChange: 1 })
-        );
-      } else {
-        const quantityChange = 1;
-        dispatch(changeCardQuantity({ id: cardWithKey._id, quantityChange }));
+      const response = await axios.get(
+        `${process.env.REACT_APP_SERVER}/api/carts`
+      );
+
+      if (response.data && response.data.length > 0) {
+        const userCart = response.data.find((cart) => cart.userId === userId);
+        if (userCart) {
+          return userCart.id;
+        } else {
+          const createResponse = await axios.post(
+            `${process.env.REACT_APP_SERVER}/api/carts`,
+            { userId }
+          );
+          return createResponse.data.id;
+        }
       }
     } catch (error) {
-      console.error('Error while adding product to cart', error);
+      console.error('Error while fetching/creating the user cart', error);
+      return null;
     }
-  };
-
-  const handleRemoveProductFromCart = (card, index) => {
-    if (!card || typeof card !== 'object') {
-      console.error('Invalid product');
-      return;
-    }
-
-    try {
-      dispatch(removeCardFromCart(card, index));
-    } catch (error) {
-      console.error('Error while removing product from cart', error);
-    }
-  };
-
-  const handleSearch = (results) => {
-    if (!Array.isArray(results)) {
-      console.error('Invalid search results');
-      return;
-    }
-    setFilteredCards(results);
   };
 
   useEffect(() => {
-    try {
-      dispatch(loadCardsFromAPI());
-    } catch (error) {
-      console.error('Error while loading cards', error);
-    }
-  }, [dispatch]);
+    const fetchCartId = async () => {
+      const id = await getAllCartsAndFindUserCart(userId);
+      setCartId(id);
+    };
 
+    fetchCartId();
+  }, []);
+
+  const handleAddToCart = useCallback(
+    (card, index) => {
+      dispatch(
+        asyncActions.addToCart({
+          id: userId,
+          cardId: card.id,
+          cartId: cartId,
+        })
+      );
+
+      if (
+        !filteredCards ||
+        !Array.isArray(filteredCards) ||
+        !filteredCards[index]
+      ) {
+        console.error('Invalid product');
+        return;
+      }
+
+      const cardWithKey = {
+        ...card,
+        key: `${index}_${Math.random()}`,
+      };
+
+      const maxQuantity = 3;
+      let num = 1;
+      let found = false;
+
+      if (cartData && Array.isArray(cartData)) {
+        for (let i = 0; i < cartData.length; i++) {
+          if (
+            cartData[i].card.id === card.id &&
+            cartData[i].quantity < maxQuantity
+          ) {
+            num = cartData[i].quantity + 1;
+            cartData[i].quantity = num;
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          cartData.push({ card: cardWithKey, quantity: num });
+        }
+
+        dispatch(
+          cartActions.updateCart({
+            userId,
+            cartData,
+          })
+        ).catch((error) => console.error('Error while updating cart', error));
+      }
+    },
+    [dispatch, userId, cartData, filteredCards, cartId]
+  );
+
+  const handleRemoveCardFromCart = useCallback(
+    (card) => {
+      if (!card || typeof card !== 'object') {
+        console.error('Invalid product');
+        return;
+      }
+
+      dispatch(cartActions.removeFromCart(card.key)).catch((error) =>
+        console.error('Error while removing product from cart', error)
+      );
+    },
+    [dispatch]
+  );
+
+  const isCardDataValid = filteredCards && Array.isArray(filteredCards);
+  const cardsToRender = hasSearched ? filteredCards : filteredCards;
+  console.log('filteredCards', filteredCards);
   console.log('cardData', cardData);
-  console.log('cartData', cart);
-  console.log('filteredCards', cardData.cardList);
-  console.log('filteredCards', cardData.cardList?.length);
+  let cardsToRenderArray = Array.from(cardsToRender);
+
+  const limitedCardsToRender = cardsToRenderArray.slice(0, 30);
 
   return (
     <StoreContainer>
       <StoreTitle>Store</StoreTitle>
       <Grid container>
         <Grid item xs={12}>
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar
+            filteredCards={filteredCards}
+            setFilteredCards={(cards) => {
+              setFilteredCards(cards || []);
+              setHasSearched(cards && Array.isArray(cards) && cards.length > 0);
+            }}
+          />
         </Grid>
         <ProductsGrid item xs={12} container>
-          {/* {(Array.isArray(filteredCards) ? filteredCards : cardData).map( */}
-          {cardData.cards &&
-            Array.isArray(cardData.cards) &&
-            cardData.cards.map((card, index) => (
+          {isCardDataValid &&
+            limitedCardsToRender.map((card, index) => (
               <Grid
                 item
                 xs={12}
                 sm={6}
                 md={4}
                 lg={3}
-                key={cardData.id}
+                key={card.id}
                 className={classes.gridItem}
               >
                 <ProductCard
                   card={card}
                   handleAddToCart={() => handleAddToCart(card, index)}
-                  handleRemoveProductFromCart={() =>
-                    handleRemoveProductFromCart(card, index)
+                  handleRemoveCardFromCart={() =>
+                    handleRemoveCardFromCart(card)
                   }
-                  cartData={cart}
+                  cartData={cartData}
                   cardData={cardData}
                 />
               </Grid>

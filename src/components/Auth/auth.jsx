@@ -1,6 +1,5 @@
-import { useContext } from 'react';
+import { useContext, memo } from 'react';
 import { useRoutes } from 'react-router-dom';
-
 import { AuthContext } from '../../context/Auth/authContext';
 
 function Auth({ children, capability }) {
@@ -16,4 +15,4 @@ function Auth({ children, capability }) {
   return isLoggedIn && canDo ? routes : null;
 }
 
-export default Auth;
+export default memo(Auth);
