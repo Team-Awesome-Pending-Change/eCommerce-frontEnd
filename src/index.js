@@ -5,21 +5,24 @@ import App from './App';
 import GlobalStyles from './GlobalStyles';
 import { Provider } from 'react-redux';
 import AuthProvider, { AuthContext } from './context/Auth/authContext';
-import { CartProvider } from './context/CartContext/CartContext';
+import CartProvider from './context/CartContext/CartContext';
 import store from './store/store';
+import { CardStoreProvider } from './context/CartContext/CardStore';
 
 const root = document.getElementById('root');
 
 function Main() {
   return (
-    <Provider store={store}>
+    <CardStoreProvider>
       <CartProvider>
-        <AuthProvider>
-          <GlobalStyles />
-          <App />
-        </AuthProvider>
+        <Provider store={store}>
+          <AuthProvider>
+            <GlobalStyles />
+            <App />
+          </AuthProvider>
+        </Provider>
       </CartProvider>
-    </Provider>
+    </CardStoreProvider>
   );
 }
 

@@ -1,114 +1,4 @@
-// import React, { useEffect, useState, useCallback } from 'react';
-// import { useSelector, useDispatch } from 'react-redux';
-// import { Cookies } from 'react-cookie';
-// import {
-//   Box,
-//   Card as CardElement,
-//   CardContent,
-//   Container,
-// } from '@mui/material';
-// import { asyncActions, changeCardQuantity } from '../store/reducers/cart';
-// import CartContent from '../components/content/CartContent';
-// import CustomerForm from '../components/forms/CustomerForm';
-
-// const CartPage = () => {
-//   const dispatch = useDispatch();
-//   const cookies = new Cookies();
-//   const user = cookies.get('userCookie');
-//   const userId = user?.id;
-
-//   const cartData = useSelector((state) => state.cart) || [];
-//   const cartState =
-//     useSelector((storefrontState) => storefrontState.cart) || {};
-
-//   useEffect(() => {
-//     if (userId) {
-//       dispatch(asyncActions.fetchCart({ userId }));
-//       if (cartState.cart && cartState.cart.length > 0) {
-//         dispatch(
-//           asyncActions.pushToServerCart({ userId, cart: cartState.cart })
-//         );
-//       }
-//     }
-//   }, [dispatch, userId, cartState.cart]);
-
-//   const handleModifyItemInCart = async (event, product, operation) => {
-//     const quantityChange = parseInt(event.target.value);
-//     if (isNaN(quantityChange)) return;
-
-//     try {
-//       if (operation === 'add') {
-//         await dispatch(changeCardQuantity({ id: product.key, quantityChange }));
-//       } else if (operation === 'remove') {
-//         await dispatch(asyncActions.removeFromCart({ id: product.key }));
-//       }
-//     } catch (error) {
-//       console.error('Failed to adjust quantity in cart: ', error);
-//     }
-//   };
-
-//   const calculateTotalPrice = useCallback(() => {
-//     if (!Array.isArray(cartData)) {
-//       console.error('cartData is not an array:', cartData);
-//       return 0;
-//     }
-
-//     return cartData.reduce(
-//       (total, item) =>
-//         total +
-//         (item.product_prices?.[0]?.tcgplayer_price || 0) * item.quantity,
-//       0
-//     );
-//   }, [cartData]);
-
-//   return (
-//     <Container>
-//       <Box
-//         sx={{
-//           marginTop: '2rem',
-//           display: 'flex',
-//           justifyContent: 'center',
-//           flexGrow: '1',
-//         }}
-//       >
-//         <CardElement sx={{ width: '90%', padding: '1rem' }}>
-//           <CardContent>
-//             <Box
-//               sx={{
-//                 display: 'flex',
-//                 justifyContent: 'space-between',
-//                 flexGrow: '1',
-//               }}
-//             >
-//               <Box sx={{ flex: 1, marginRight: '2rem' }}>
-//                 {cartData && (
-//                   <CartContent
-//                     cartData={cartData}
-//                     calculateTotalPrice={calculateTotalPrice}
-//                     onQuantityChange={handleModifyItemInCart}
-//                   />
-//                 )}
-//               </Box>
-//               <Box sx={{ flex: 1 }}>
-//                 <CustomerForm calculateTotalPrice={calculateTotalPrice} />
-//               </Box>
-//             </Box>
-//           </CardContent>
-//         </CardElement>
-//       </Box>
-//     </Container>
-//   );
-// };
-
-// export default CartPage;
-import React, { useEffect, useState, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  changeCardQuantity,
-  fetchCart,
-  pushToServerCart,
-  asyncActions,
-} from '../store/reducers/cart';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { Cookies } from 'react-cookie';
 import {
   Box,
@@ -118,86 +8,62 @@ import {
 } from '@mui/material';
 import CartContent from '../components/content/CartContent';
 import CustomerForm from '../components/forms/CustomerForm';
+import { CartContext } from '../context/CartContext/CartContext';
+import { BeatLoader } from 'react-spinners';
+import { useCardStore } from '../context/CartContext/CardStore';
 
-const CartPage = ({ activeUserCartId, setActiveUserCartId }) => {
-  const dispatch = useDispatch();
+const CartPage = () => {
   const cookies = new Cookies();
   const user = cookies.get('userCookie');
   const userId = user?.id;
+  console.log('User id:', userId); // Log the user id
 
-  // Fetching cart data from redux store
-  const cartData = useSelector((state) => state.cart) || [];
-  const cartState = useSelector((state) => state.cart) || {};
-  console.log('cart state', cartState);
+  const {
+    items,
+    getCardQuantity,
+    addOneToCart,
+    removeOneFromCart,
+    getTotalCost,
+    setItems,
+  } = useContext(CartContext);
 
-  const cartStatus = useSelector((state) => state.cartStatus);
-  const cartError = useSelector((state) => state.cartError);
+  const { getCardData } = useCardStore(); // Use the useCardStore hook to get the getCardData function
 
-  // Local state variables to keep track of cart data
-  const [fetchedCartId, setFetchedCartId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   if (userId) {
-  //     dispatch(asyncActions.fetchCart({ userId }));
-  //     if (cartState.cart && cartState.cart.length > 0) {
-  //       dispatch(
-  //         asyncActions.pushToServerCart({ userId, cart: cartState.cart })
-  //       );
-  //     }
-  //   }
-  // }, [dispatch, userId, cartState.cart]);
   useEffect(() => {
-    dispatch(asyncActions.fetchAllCarts());
-  }, [dispatch]);
+    // When the user id or the cart items change, update the loading state
+    setLoading(!(userId && items && items.length > 0));
+  }, [items, userId]);
 
-  console.log('cartData', cartData);
+  const calculateTotalPrice = useCallback(getTotalCost, [items]);
 
-  const handleModifyItemInCart = async (event, product, operation) => {
-    const quantityChange = parseInt(event.target.value);
-    if (isNaN(quantityChange)) {
-      return;
-    }
+  const handleModifyItemInCart = async (cardId, operation) => {
     try {
       if (operation === 'add') {
-        await dispatch(
-          changeCardQuantity({
-            id: product.key,
-            quantityChange: quantityChange,
-          })
-        );
+        addOneToCart(cardId);
       } else if (operation === 'remove') {
-        await dispatch(asyncActions.removeFromCart({ id: activeUserCartId }));
+        removeOneFromCart(cardId);
       }
     } catch (error) {
       console.error('Failed to adjust quantity in cart: ', error);
     }
   };
 
-  const calculateTotalPrice = useCallback(() => {
-    if (!Array.isArray(cartData)) {
-      console.error('cartData is not an array:', cartData);
-      return 0;
-    }
-    return cartData.reduce(
-      (total, item) =>
-        total +
-        (item.product_prices &&
-        Array.isArray(item.product_prices) &&
-        item.product_prices.length > 0 &&
-        item.product_prices[0].tcgplayer_price
-          ? item.product_prices[0].tcgplayer_price
-          : 0) *
-          (item.quantity || 0),
-      0
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <BeatLoader color={'#123abc'} loading={loading} size={24} />
+      </div>
     );
-  }, [cartData]);
-
-  if (cartStatus === 'loading') {
-    return <div>Loading...</div>;
-  } else if (cartStatus === 'failed') {
-    return <div>Error: {cartError}</div>;
   }
-
   return (
     <Container>
       <Box
@@ -218,9 +84,12 @@ const CartPage = ({ activeUserCartId, setActiveUserCartId }) => {
               }}
             >
               <Box sx={{ flex: 1, marginRight: '2rem', flexGrow: '1' }}>
-                {cartData && (
+                {items && (
                   <CartContent
-                    cartData={cartData}
+                    cartData={items.map((item) => ({
+                      ...getCardData(item.id),
+                      quantity: getCardQuantity(item.id),
+                    }))}
                     calculateTotalPrice={calculateTotalPrice}
                     onQuantityChange={handleModifyItemInCart}
                   />
