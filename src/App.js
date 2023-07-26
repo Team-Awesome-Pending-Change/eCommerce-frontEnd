@@ -12,59 +12,9 @@ import Home from './pages/Home';
 import Store from './pages/Store';
 import theme from './assets/styles/themes';
 import CartPage from './pages/CartPage';
-// import { loadSavedCards } from './store/reducers/cart';
-// import { AuthContext } from './context/Auth/authContext';
 
 const App = () => {
-  // const user = useContext(AuthContext);
-  // const dispatch = useDispatch();
-  // const [cookies, setCookie, removeCookie] = useCookies(['userCookie']);
-  // console.log(cookies['userCookie']); // get a cookie
-
   const [activeUserCartId, setActiveUserCartId] = useState(null);
-
-  // console.log('user', user);
-
-  // useEffect(() => {
-  //   const userId = cookies.userCookie;
-  //   if (userId) {
-  //     dispatch(loadSavedCards(userId));
-  //   }
-  // }, [dispatch, cookies.userCookie]);
-
-  // const getAllCartsAndFindUserCart = async () => {
-  //   try {
-  //     const userId = cookies.userCookie;
-  //     const response = await axios.get(
-  //       `${process.env.REACT_APP_SERVER}/api/carts`
-  //     );
-
-  //     if (response.data && response.data.length > 0) {
-  //       const userCart = response.data.find((cart) => cart.userId === userId);
-  //       if (userCart) {
-  //         return userCart.id;
-  //       } else {
-  //         const createResponse = await axios.post(
-  //           `${process.env.REACT_APP_SERVER}/api/carts`,
-  //           { userId }
-  //         );
-  //         return createResponse.data.id;
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Error while fetching/creating the user cart', error);
-  //     return null;
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const fetchCartId = async () => {
-  //     const cartId = await getAllCartsAndFindUserCart();
-  //     setActiveUserCartId(cartId);
-  //   };
-
-  //   fetchCartId();
-  // }, []);
 
   return (
     <Router>
