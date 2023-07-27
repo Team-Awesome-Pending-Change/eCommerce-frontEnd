@@ -165,14 +165,14 @@ const SearchBar = ({ filteredCards, setFilteredCards, ...props }) => {
             </Button>
           </Grid>
         </Grid>
-        <Grid container spacing={2}>
+        {/* <Grid container spacing={2}>
           {Array.isArray(filteredCards) &&
             filteredCards.map((card, index) => (
               <Grid item key={card.id} xs={12} sm={6} md={4}>
                 <ProductCard cardInfo={card} index={index} {...props} />
               </Grid>
             ))}
-        </Grid>
+        </Grid> */}
       </Container>
     </Box>
     // </CardStoreProvider>

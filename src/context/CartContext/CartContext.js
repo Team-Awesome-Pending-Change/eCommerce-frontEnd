@@ -90,6 +90,7 @@ export const CartProvider = ({ children }) => {
       fetchUserCart(userId).then((data) => {
         if (data && data.cart) {
           // setCartData(data);
+          console.log('93 DATA:', data);
           setCartDataAndCookie(data);
         } else {
           console.error('Cart data was not retrieved for user', userId);
@@ -145,8 +146,13 @@ export const CartProvider = ({ children }) => {
   };
 
   const getCardQuantity = (cardInfo) => {
-    const cartItem = cartData.cart?.find((item) => item.id === cardInfo.id);
-    return cartItem ? cartItem.quantity : 0;
+    let quantity = 0;
+    cartData.cart?.forEach((item) => {
+      if (item.id.split('_')[0] === cardInfo.id) {
+        quantity += item.quantity;
+      }
+    });
+    return quantity;
   };
 
   const addOneToCart = async (cardInfo) => {
@@ -165,41 +171,41 @@ export const CartProvider = ({ children }) => {
 
     let updatedCart;
     if (itemExistsInCart) {
-      updatedCart = cartData.cart.map((item) => {
-        if (item.id === cardInfo.id) {
-          return { ...item, quantity: item.quantity + 1 };
-        }
-        return item;
-      });
+      // New item with a unique id and the same properties
+      const newItem = {
+        ...cardInfo,
+        id: `${cardInfo.id}_${Date.now()}`,
+        quantity: 1,
+      };
+      updatedCart = [...cartData.cart, newItem];
     } else {
       updatedCart = [...cartData.cart, { ...cardInfo, quantity: 1 }];
     }
 
     const newCartData = await updateCartInBackend(cartData._id, updatedCart);
-    // setCartData(newCartData || []);
     setCartDataAndCookie(newCartData || []);
   };
 
   const removeOneFromCart = async (cardInfo) => {
-    const quantity = getCardQuantity(cardInfo);
+    const itemExistsInCart = cartData.cart.some(
+      (item) => item.id.split('_')[0] === cardInfo.id
+    );
 
-    if (quantity === 1) {
-      await deleteFromCart(cardInfo);
-    } else {
+    if (itemExistsInCart) {
       const updatedCart =
-        cartData?.cart?.map((item) => {
-          if (item.id === cardInfo.id) {
-            return {
-              ...item,
-              quantity: item.quantity - 1,
-            };
-          }
-          return item;
-        }) ?? [];
+        cartData?.cart
+          ?.map((item) => {
+            if (item.id.split('_')[0] === cardInfo.id) {
+              return { ...item, quantity: item.quantity - 1 };
+            }
+            return item;
+          })
+          .filter((item) => item.quantity !== 0) ?? [];
 
       const newCartData = await updateCartInBackend(cartData?._id, updatedCart);
-      // setCartData(newCartData || []);
       setCartDataAndCookie(newCartData || []);
+    } else {
+      console.log('Item not found in cart.');
     }
   };
 

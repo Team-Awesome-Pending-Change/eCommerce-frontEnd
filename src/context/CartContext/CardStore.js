@@ -6,24 +6,28 @@ const CardStoreContext = createContext();
 
 export const CardStoreProvider = ({ children }) => {
   const [cookies, setCookie] = useCookies(['cart']);
+  const initialStore = cookies.store || [];
   const initialCart = cookies.cart || [];
   console.log('Initial cart:', initialCart);
-  const [cardsArray, setCardsArray] = useState(initialCart);
-
-  if (!cardsArray) {
+  const [cardsArray, setCardsArray] = useState(initialStore);
+  console.log('Initial store:', initialStore);
+  const currentCart = cookies.cart || [];
+  const [currenCartArray, setCurrentCartArray] = useState(currentCart);
+  console.log('Current cart:', currentCart);
+  if (!currenCartArray) {
     return <div>Loading...</div>;
   }
 
   const getCardData = (cardId) => {
-    if (Array.isArray(cardsArray)) {
-      return cardsArray.find((card) => card.id === cardId);
+    if (Array.isArray(currenCartArray)) {
+      return currenCartArray.find((card) => card.id === cardId);
     }
     throw new Error('Cards data is not in the expected format');
   };
 
   const getRandomCard = () => {
-    const randomIndex = Math.floor(Math.random() * cardsArray.length);
-    const randomCardData = cardsArray[randomIndex];
+    const randomIndex = Math.floor(Math.random() * currenCartArray.length);
+    const randomCardData = currenCartArray[randomIndex];
     return randomCardData;
   };
 
@@ -40,7 +44,19 @@ export const CardStoreProvider = ({ children }) => {
 
   return (
     <CardStoreContext.Provider
-      value={{ cardsArray, getCardData, randomCardData, setCardsArray }}
+      value={{
+        cardsArray,
+        getCardData,
+        randomCardData,
+        setCardsArray,
+        getRandomCard,
+        setCookie,
+        setCurrentCartArray,
+        currenCartArray,
+        initialStore,
+        cookies,
+        currentCart,
+      }}
     >
       {children}
     </CardStoreContext.Provider>

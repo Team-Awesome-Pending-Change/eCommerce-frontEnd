@@ -16,6 +16,12 @@ const useStyles = makeStyles({
   button: {
     margin: '0 8px',
   },
+  largerButton: {
+    // Added new style for larger buttons
+    margin: '0 8px',
+    padding: '10px', // Adjust padding as required
+    fontSize: '20px', // Adjust font size as required
+  },
 });
 
 const ProductCard = ({ cardInfo, index, ...props }) => {
@@ -33,6 +39,7 @@ const ProductCard = ({ cardInfo, index, ...props }) => {
     useContext(CartContext);
 
   const productQuantity = cardInfo.id ? getCardQuantity(cardInfo) : 0;
+  // const productQuantity = cardInfo.id ? cardInfo.quantity : 0;
   const imgUrl = cardInfo?.card_images?.[0]?.image_url || '';
   const classes = useStyles();
 
@@ -70,26 +77,26 @@ const ProductCard = ({ cardInfo, index, ...props }) => {
               <Grid item xs={6}>
                 <Button
                   onClick={() => addOneToCart(cardInfo)}
-                  className={classes.button}
+                  className={classes.largerButton} // Used largerButton class
                 >
                   +
                 </Button>
                 <Button
                   onClick={() => removeOneFromCart(cardInfo)}
-                  className={classes.button}
+                  className={classes.largerButton} // Used largerButton class
                 >
                   -
                 </Button>
               </Grid>
             </Grid>
-            <Button
+            {/* <Button
               variant="contained"
               color="secondary"
               onClick={() => deleteFromCart(cardInfo)}
               className={classes.button}
             >
               Remove from cart
-            </Button>
+            </Button> */}
           </>
         ) : (
           <Button
