@@ -1,59 +1,19 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { Cookies } from 'react-cookie';
+import { createContext, useContext, useState } from 'react';
+import { useCookies } from 'react-cookie';
 
 // Create a context for the cardStore
 const CardStoreContext = createContext();
 
-// In CardStore.js
 export const CardStoreProvider = ({ children }) => {
-  const cookies = new Cookies();
-  const initialCart = cookies.get('cart') || [];
-  console.log('Initial cart:', initialCart); // Log initial cart data
+  const [cookies, setCookie] = useCookies(['cart']);
+  const initialCart = cookies.cart || [];
+  console.log('Initial cart:', initialCart);
   const [cardsArray, setCardsArray] = useState(initialCart);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER}/api/cards/ygopro`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (isMounted) {
-          console.log('Fetched data:', data); // Log fetched data
-          setCardsArray(data);
-          cookies.set('cart', data, { path: '/' });
-        }
-      } catch (error) {
-        console.error(`Failed to fetch cards data: ${error.message}`);
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
   if (!cardsArray) {
-    return <div>Loading...</div>; // or some loading indicator
+    return <div>Loading...</div>;
   }
 
-  // Define the getCardData function
   const getCardData = (cardId) => {
     if (Array.isArray(cardsArray)) {
       return cardsArray.find((card) => card.id === cardId);
@@ -69,22 +29,29 @@ export const CardStoreProvider = ({ children }) => {
 
   const randomCardData = getRandomCard();
 
-  // Render the CardStoreContext Provider, passing the cards array, getCardData function, and randomCardData as its value
+  // In CardStoreProvider component
+
+  console.log('Context value: ', {
+    cardsArray,
+    getCardData,
+    getRandomCard,
+    setCardsArray,
+  });
+
   return (
     <CardStoreContext.Provider
-      value={{ cardsArray, getCardData, randomCardData }}
+      value={{ cardsArray, getCardData, randomCardData, setCardsArray }}
     >
       {children}
     </CardStoreContext.Provider>
   );
 };
 
-// Update useCardStore to return randomCardData
 export const useCardStore = () => {
   const context = useContext(CardStoreContext);
   if (!context) {
     throw new Error('useCardStore must be used within a CardStoreProvider');
   }
-  const { cardsArray, getCardData, randomCardData } = context;
-  return { cardsArray, getCardData, randomCardData };
+  const { cardsArray, getCardData, getRandomCard, setCardsArray } = context; // change here
+  return { cardsArray, getCardData, getRandomCard, setCardsArray }; // change here
 };

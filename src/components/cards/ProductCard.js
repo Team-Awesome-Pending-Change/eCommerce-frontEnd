@@ -18,7 +18,13 @@ const useStyles = makeStyles({
   },
 });
 
-const ProductCard = ({ card = {} }) => {
+const ProductCard = ({ cardInfo, index, ...props }) => {
+  if (!cardInfo) {
+    // If the cardInfo is undefined, handle the case gracefully (optional)
+    return <div>Card data not available.</div>;
+  }
+
+  const { id, name } = cardInfo;
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const openCardModal = () => setCardModalOpen(true);
   const closeCardModal = () => setCardModalOpen(false);
@@ -26,24 +32,24 @@ const ProductCard = ({ card = {} }) => {
   const { getCardQuantity, addOneToCart, removeOneFromCart, deleteFromCart } =
     useContext(CartContext);
 
-  const productQuantity = card.id ? getCardQuantity(card.id) : 0;
-  const imgUrl = card?.card_images?.[0]?.image_url || '';
+  const productQuantity = cardInfo.id ? getCardQuantity(cardInfo) : 0;
+  const imgUrl = cardInfo?.card_images?.[0]?.image_url || '';
   const classes = useStyles();
 
   return (
     <Card className={classes.card}>
       <CardMedia
         component="img"
-        alt={card?.name}
+        alt={cardInfo?.name}
         height="140"
         image={imgUrl || placeholderImage}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
-          {card?.name}
+          {cardInfo?.name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {card?.card_prices?.[0]?.tcgplayer_price}
+          {cardInfo?.card_prices?.[0]?.tcgplayer_price}
         </Typography>
       </CardContent>
       <CardActions>
@@ -53,7 +59,7 @@ const ProductCard = ({ card = {} }) => {
         <CardModal
           isOpen={isCardModalOpen}
           onClose={closeCardModal}
-          cardInfo={card}
+          cardInfo={cardInfo}
         />
         {productQuantity > 0 ? (
           <>
@@ -63,13 +69,13 @@ const ProductCard = ({ card = {} }) => {
               </Grid>
               <Grid item xs={6}>
                 <Button
-                  onClick={() => addOneToCart(card.id)} // Here
+                  onClick={() => addOneToCart(cardInfo)}
                   className={classes.button}
                 >
                   +
                 </Button>
                 <Button
-                  onClick={() => removeOneFromCart(card.id)} // And here
+                  onClick={() => removeOneFromCart(cardInfo)}
                   className={classes.button}
                 >
                   -
@@ -79,7 +85,7 @@ const ProductCard = ({ card = {} }) => {
             <Button
               variant="contained"
               color="secondary"
-              onClick={() => deleteFromCart(card.id)} // And here
+              onClick={() => deleteFromCart(cardInfo)}
               className={classes.button}
             >
               Remove from cart
@@ -89,7 +95,7 @@ const ProductCard = ({ card = {} }) => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => addOneToCart(card.id)} // And here
+            onClick={() => addOneToCart(cardInfo)}
             className={classes.button}
           >
             Add To Cart

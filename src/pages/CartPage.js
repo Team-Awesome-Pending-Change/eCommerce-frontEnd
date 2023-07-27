@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
-import { Cookies } from 'react-cookie';
+import React, { useContext, useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import {
   Box,
   Card as CardElement,
@@ -10,33 +10,51 @@ import CartContent from '../components/content/CartContent';
 import CustomerForm from '../components/forms/CustomerForm';
 import { CartContext } from '../context/CartContext/CartContext';
 import { BeatLoader } from 'react-spinners';
-import { useCardStore } from '../context/CartContext/CardStore';
+// import { useCardStore } from '../context/CartContext/CardStore';
 
 const CartPage = () => {
-  const cookies = new Cookies();
-  const user = cookies.get('userCookie');
+  const [cookies] = useCookies(['userCookie']);
+  const user = cookies.userCookie;
   const userId = user?.id;
-  console.log('User id:', userId); // Log the user id
 
   const {
-    items,
+    cartData, // Use the updated cart object from the context
     getCardQuantity,
     addOneToCart,
     removeOneFromCart,
     getTotalCost,
-    setItems,
+    loading,
+    error,
   } = useContext(CartContext);
 
-  const { getCardData } = useCardStore(); // Use the useCardStore hook to get the getCardData function
+  // const { getCardData } = useContext(useCardStore()); // Using useCardStore here instead of CartContext
+  // const { getRandomCard } = useCardStore();
+  // const randomCard = getRandomCard();
+  // console.log('randomCard', randomCard);
+  console.log('cartData', cartData);
 
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
-    // When the user id or the cart items change, update the loading state
-    setLoading(!(userId && items && items.length > 0));
-  }, [items, userId]);
+    setPageLoading(!(userId && cartData.cart && cartData.cart.length > 0));
+  }, [cartData, userId]);
 
-  const calculateTotalPrice = useCallback(getTotalCost, [items]);
+  if (pageLoading || loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <BeatLoader color={'#123abc'} loading={true} size={24} />
+      </div>
+    );
+  }
+
+  const calculateTotalPrice = getTotalCost();
 
   const handleModifyItemInCart = async (cardId, operation) => {
     try {
@@ -50,20 +68,10 @@ const CartPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <BeatLoader color={'#123abc'} loading={loading} size={24} />
-      </div>
-    );
+  if (error) {
+    return <div>Error: {error}</div>;
   }
+
   return (
     <Container>
       <Box
@@ -84,15 +92,18 @@ const CartPage = () => {
               }}
             >
               <Box sx={{ flex: 1, marginRight: '2rem', flexGrow: '1' }}>
-                {items && (
+                {cartData.cart ? (
                   <CartContent
-                    cartData={items.map((item) => ({
-                      ...getCardData(item.id),
-                      quantity: getCardQuantity(item.id),
-                    }))}
+                    // cartData={cartData.cart.map((item) => ({
+                    //   ...getCardData(item.id),
+                    //   quantity: getCardQuantity(item.id),
+                    // }))}
+                    cartData={cartData.cart}
                     calculateTotalPrice={calculateTotalPrice}
                     onQuantityChange={handleModifyItemInCart}
                   />
+                ) : (
+                  <div>Loading cart data...</div>
                 )}
               </Box>
               <Box sx={{ flex: 1 }}>

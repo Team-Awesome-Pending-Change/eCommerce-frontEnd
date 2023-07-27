@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { Grid } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import ProductCard from '../components/cards/ProductCard';
@@ -10,20 +10,20 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const ProductGrid = ({
-  cardsToRender,
-  handleRemoveCardFromCart,
-  cardData,
-  handleAddToCart,
-}) => {
+const ProductGrid = ({ cardsArray, handleAddToCart }) => {
+  // console.log('cardsArray', cardsArray);
   const classes = useStyles();
 
-  //access the functions from CartContext
-  const { addOneToCart, removeOneFromCart, getCardQuantity } =
-    useContext(CartContext);
+  // Access the functions from CartContext
+  const { deleteFromCart, getCardQuantity } = useContext(CartContext);
 
-  const isCardDataValid = cardsToRender && Array.isArray(cardsToRender);
-  const limitedCardsToRender = Array.from(cardsToRender).slice(0, 30);
+  const isCardDataValid = cardsArray && Array.isArray(cardsArray);
+
+  // Use useMemo to compute limitedCardsToRender only when cardsArray changes
+  const limitedCardsToRender = useMemo(
+    () => (cardsArray ? Array.from(cardsArray).slice(0, 30) : []),
+    [cardsArray]
+  );
 
   return (
     <Grid item xs={12} container>
@@ -39,11 +39,10 @@ const ProductGrid = ({
             className={classes.gridItem}
           >
             <ProductCard
-              card={card}
-              handleAddToCart={() => addOneToCart(card.id)}
-              handleRemoveCardFromCart={() => removeOneFromCart(card.id)}
+              cardInfo={card}
+              handleAddToCart={() => handleAddToCart(card.id)}
+              handleRemoveCardFromCart={() => deleteFromCart(card.id)}
               cardQuantity={getCardQuantity(card.id)}
-              cardData={cardData}
             />
           </Grid>
         ))}

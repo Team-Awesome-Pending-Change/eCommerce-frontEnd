@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { CartContext } from '../../context/CartContext/CartContext';
+import { useCardStore } from '../../context/CartContext/CardStore';
 
 function CustomTextField({ id = 'outlined', label, type }) {
   return (
@@ -29,73 +31,87 @@ function CustomTextField({ id = 'outlined', label, type }) {
   );
 }
 
-const CustomerForm = ({ calculateTotalPrice, cardData, cartData }) => (
-  <Container maxWidth={false}>
-    <Box sx={{ width: '100%', padding: '2rem' }}>
-      <Typography
-        variant="h5"
-        sx={{ marginBottom: '1.5rem', fontWeight: 'bold' }}
-      >
-        Customer Info
-      </Typography>
-      <form>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              marginRight: '1rem',
-            }}
-          >
-            <Box>
-              <CustomTextField label="First Name" />
-              <CustomTextField label="Last Name" />
-            </Box>
-            <CustomTextField label="Street Address" />
-            <CustomTextField label="City" />
-            <CustomTextField label="State" />
-            <CustomTextField type="number" label="Zip" />
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <CustomTextField type="number" label="Card Number" />
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  sx={{ margin: '0.8rem 0' }}
-                  label="Expiration Date"
-                />
-              </LocalizationProvider>
-              <CustomTextField type="number" label="CVV" />
-            </Box>
-            <Box sx={{ alignSelf: 'center' }}>
-              <Box sx={{ marginTop: '2rem' }}>
-                <Typography variant="h6">Grand Total:</Typography>
-                <Typography variant="h6">${calculateTotalPrice()}</Typography>
+const CustomerForm = () => {
+  const { cardsArray } = useCardStore();
+  const {
+    cartData, // Use the updated cart object from the context
+    getCardQuantity,
+    addOneToCart,
+    removeOneFromCart,
+    getTotalCost,
+    loading,
+    error,
+  } = useContext(CartContext);
+  console.log('cartData', cartData);
+
+  return (
+    <Container maxWidth={false}>
+      <Box sx={{ width: '100%', padding: '2rem' }}>
+        <Typography
+          variant="h5"
+          sx={{ marginBottom: '1.5rem', fontWeight: 'bold' }}
+        >
+          Customer Info
+        </Typography>
+        <form>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                marginRight: '1rem',
+              }}
+            >
+              <Box>
+                <CustomTextField label="First Name" />
+                <CustomTextField label="Last Name" />
               </Box>
-              <Button
-                variant="contained"
-                sx={{
-                  marginTop: '1rem',
-                  backgroundColor: '#1976d2',
-                  color: '#ffffff',
-                  '&:hover': {
-                    backgroundColor: '#1565c0',
-                  },
-                  boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.1)',
-                }}
-                onClick={(event) => {
-                  event.preventDefault();
-                  alert('Thank you for your purchase!');
-                }}
-              >
-                Submit Order
-              </Button>
+              <CustomTextField label="Street Address" />
+              <CustomTextField label="City" />
+              <CustomTextField label="State" />
+              <CustomTextField type="number" label="Zip" />
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <CustomTextField type="number" label="Card Number" />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    sx={{ margin: '0.8rem 0' }}
+                    label="Expiration Date"
+                  />
+                </LocalizationProvider>
+                <CustomTextField type="number" label="CVV" />
+              </Box>
+              <Box sx={{ alignSelf: 'center' }}>
+                <Box sx={{ marginTop: '2rem' }}>
+                  <Typography variant="h6">Grand Total:</Typography>
+                  <Typography variant="h6">${getTotalCost()}</Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  sx={{
+                    marginTop: '1rem',
+                    backgroundColor: '#1976d2',
+                    color: '#ffffff',
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
+                    },
+                    boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.1)',
+                  }}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    alert('Thank you for your purchase!');
+                  }}
+                >
+                  Submit Order
+                </Button>
+              </Box>
             </Box>
           </Box>
-        </Box>
-      </form>
-    </Box>
-  </Container>
-);
+        </form>
+      </Box>
+    </Container>
+  );
+};
 
 export default CustomerForm;
