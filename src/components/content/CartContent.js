@@ -1,22 +1,15 @@
+// Modified CartContent component
+
 import React, { useContext } from 'react';
 import { Box, Typography } from '@mui/material';
 import ProductCard from '../cards/ProductCard';
-// import { useCardStore } from '../context/CardStore';
-import { useCardStore } from '../../context/CartContext/CardStore';
+import { useCardStore } from '../../context/CardContext/CardStore';
 import { CartContext } from '../../context/CartContext/CartContext';
 
-const CartContent = ({ onQuantityChange, calculateTotalPrice }) => {
-  const { cardsArray } = useCardStore();
-  const {
-    cartData, // Use the updated cart object from the context
-    getCardQuantity,
-    addOneToCart,
-    removeOneFromCart,
-    getTotalCost,
-    loading,
-    error,
-  } = useContext(CartContext);
-  console.log('cartData', cartData);
+const CartContent = () => {
+  const { cartData, getTotalCost } = useContext(CartContext);
+
+  const page = 'cart';
 
   return (
     <Box
@@ -41,10 +34,7 @@ const CartContent = ({ onQuantityChange, calculateTotalPrice }) => {
               key={card.id + index}
               sx={{ marginBottom: '1rem', flexGrow: '1' }}
             >
-              <ProductCard
-                cardInfo={card}
-                cardQuantity={getCardQuantity(card.id)}
-              />
+              <ProductCard card={card} page={page} />
             </Box>
           ) : null
         )

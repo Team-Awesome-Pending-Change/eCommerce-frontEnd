@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useCookies } from 'react-cookie';
-import { useCardStore } from './CardStore';
+import { useCardStore } from '../CardContext/CardStore';
 
 export const CartContext = createContext({
   cartData: {
@@ -22,78 +22,73 @@ export const CartProvider = ({ children }) => {
   const [cartData, setCartData] = useState({
     _id: '', // Cart id
     cart: [], // Cart items
+    quantity: 0, // Total quantity of items
+    totalPrice: 0, // Total price of items
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { getCardData } = useCardStore();
   const [cookies, setCookie] = useCookies(['userCookie', 'cart']);
-
   const userId = cookies.userCookie?.id;
+  const { getCardData } = useCardStore();
 
-  const createUserCart = async (userId) => {
-    const newCartResponse = await fetch(
-      `${process.env.REACT_APP_SERVER}/api/carts/newCart/${userId}`,
-      {
-        method: 'POST',
-      }
+  //Utility functions
+  const fetchFromServer = async (url, options = {}) => {
+    const response = await fetch(
+      `${process.env.REACT_APP_SERVER}${url}`,
+      options
     );
-
-    if (!newCartResponse.ok) {
-      throw new Error(`HTTP error! status: ${newCartResponse.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-
-    const newCartData = await newCartResponse.json();
-    console.log('CART CREATED:', newCartData);
-    const newCartItems = Array.isArray(newCartData.cart)
-      ? newCartData.cart
-      : [];
-    setCookie('cart', newCartItems, { path: '/' });
-    return newCartItems;
+    return await response.json();
   };
+
+  const updateCart = async (cartId, updatedCart) => {
+    const formattedCartData = updatedCart.map((item) => ({
+      ...item,
+      quantity: item.quantity,
+    }));
+    const data = await fetchFromServer(`/api/carts/${cartId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formattedCartData),
+    });
+    setCartDataAndCookie(data);
+  };
+
+  //Context functions
+  const createUserCart = useCallback(
+    async (userId) => {
+      const newCartData = await fetchFromServer(
+        `/api/carts/newCart/${userId}`,
+        { method: 'POST' }
+      );
+      setCookie('cart', newCartData.cart || [], { path: '/' });
+      return newCartData.cart || [];
+    },
+    [setCookie]
+  );
 
   const fetchUserCart = useCallback(
     async (userId) => {
-      setLoading(true);
-      setError(null);
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_SERVER}/api/carts/userCart/${userId}`
-        );
-
-        if (!response.ok) {
-          if (response.status === 404) {
-            return createUserCart(userId);
-          } else if (response.status === 500) {
-            setError('An unexpected error occurred. Please try again later.');
-          } else {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-        } else {
-          const data = await response.json();
-          console.log('CART EXISTS:', data);
-          setCookie('cart', Array.isArray(data.cart) ? data.cart : [], {
-            path: '/',
-          });
-          setLoading(false);
-          return data;
-        }
+        const data = await fetchFromServer(`/api/carts/userCart/${userId}`);
+        setCookie('cart', data.cart || [], { path: '/' });
+        return data;
       } catch (error) {
-        setError(error.message);
-        setLoading(false);
+        if (error.message === 'HTTP error! status: 404') {
+          return createUserCart(userId);
+        } else {
+          console.error(error.message);
+        }
       }
     },
-    [setCookie]
+    [createUserCart, setCookie]
   );
 
   useEffect(() => {
     if (userId && typeof userId === 'string') {
       fetchUserCart(userId).then((data) => {
         if (data && data.cart) {
-          // setCartData(data);
-          console.log('93 DATA:', data);
           setCartDataAndCookie(data);
-        } else {
-          console.error('Cart data was not retrieved for user', userId);
         }
       });
     }
@@ -101,132 +96,81 @@ export const CartProvider = ({ children }) => {
 
   const setCartDataAndCookie = (newCartData) => {
     setCartData(newCartData);
-    setCookie('cart', newCartData.cart, { path: '/' });
+    setCookie('cart', newCartData, { path: '/' });
   };
 
-  const updateCartInBackend = async (cartId, updatedCart) => {
-    const formattedCartData = updatedCart.map((item) => ({
-      id: item.id,
-      name: item.name,
-      type: item.type,
-      frameType: item.frameType,
-      desc: item.desc,
-      atk: item.atk,
-      def: item.def,
-      level: item.level,
-      race: item.race,
-      attribute: item.attribute,
-      card_images: item.card_images,
-      card_prices: item.card_prices,
-      quantity: item.quantity,
-    }));
-
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_SERVER}/api/carts/${cartId}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formattedCartData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('data:', data);
-      return data;
-    } catch (error) {
-      console.error(`Failed to update cart in backend: ${error.message}`);
-    }
-  };
-
-  const getCardQuantity = (cardInfo) => {
-    let quantity = 0;
-    cartData.cart?.forEach((item) => {
-      if (item.id.split('_')[0] === cardInfo.id) {
-        quantity += item.quantity;
+  const getCardQuantity = (cardId) => {
+    let totalItems = 0;
+    let quantityOfSameId = 0;
+    cartData.cart.forEach((item) => {
+      totalItems += item.quantity;
+      if (item.id === cardId) {
+        quantityOfSameId += item.quantity;
       }
     });
-    return quantity;
+    return { totalItems, quantityOfSameId };
   };
 
   const addOneToCart = async (cardInfo) => {
-    console.log('cartData at addOneToCart:', cartData);
-    console.log('cartData._id at addOneToCart:', cartData?._id);
-
-    if (!cartData?._id) {
-      // Checking for cartData._id instead of cartData.cart._id
-      console.log('A valid cart has not been fetched from the backend yet.');
-      return;
-    }
-
-    const itemExistsInCart = cartData.cart.some(
-      (item) => item.id === cardInfo.id
+    if (!cartData._id) return;
+    const { quantityOfSameId } = getCardQuantity(cardInfo.id);
+    if (quantityOfSameId >= 3) return;
+    let updatedCart = cartData.cart.map((item) =>
+      item.id === cardInfo.id ? { ...item, quantity: item.quantity + 1 } : item
     );
-
-    let updatedCart;
-    if (itemExistsInCart) {
-      // New item with a unique id and the same properties
-      const newItem = {
-        ...cardInfo,
-        id: `${cardInfo.id}_${Date.now()}`,
-        quantity: 1,
-      };
-      updatedCart = [...cartData.cart, newItem];
-    } else {
-      updatedCart = [...cartData.cart, { ...cardInfo, quantity: 1 }];
+    if (!cartData.cart.some((item) => item.id === cardInfo.id)) {
+      updatedCart.push({ ...cardInfo, quantity: 1 });
     }
-
-    const newCartData = await updateCartInBackend(cartData._id, updatedCart);
-    setCartDataAndCookie(newCartData || []);
+    updateCart(cartData._id, updatedCart);
   };
 
   const removeOneFromCart = async (cardInfo) => {
-    const itemExistsInCart = cartData.cart.some(
-      (item) => item.id.split('_')[0] === cardInfo.id
-    );
-
-    if (itemExistsInCart) {
-      const updatedCart =
-        cartData?.cart
-          ?.map((item) => {
-            if (item.id.split('_')[0] === cardInfo.id) {
-              return { ...item, quantity: item.quantity - 1 };
-            }
-            return item;
-          })
-          .filter((item) => item.quantity !== 0) ?? [];
-
-      const newCartData = await updateCartInBackend(cartData?._id, updatedCart);
-      setCartDataAndCookie(newCartData || []);
-    } else {
-      console.log('Item not found in cart.');
+    if (cartData.cart.some((item) => item.id === cardInfo.id)) {
+      const updatedCart = cartData.cart
+        .map((item) =>
+          item.id === cardInfo.id && item.quantity > 0
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+        .filter((item) => item.quantity > 0);
+      updateCart(cartData._id, updatedCart);
     }
   };
 
   const deleteFromCart = async (cardInfo) => {
-    const updatedCart =
-      cartData?.cart?.filter((item) => item.id !== cardInfo.id) ?? [];
-    const newCartData = await updateCartInBackend(cartData?._id, updatedCart);
-    // setCartData(newCartData || []);
-    setCartDataAndCookie(newCartData || []);
+    const updatedCart = cartData.cart.filter((item) => item.id !== cardInfo.id);
+    updateCart(cartData._id, updatedCart);
   };
 
-  const getTotalCost = () => {
-    return cartData?.cart?.reduce((total, item) => {
-      return total + item.quantity * item.cost;
-    }, 0);
-  };
+  const getTotalCost = () =>
+    cartData.cart.reduce(
+      (total, item) =>
+        total + item.quantity * item.card_prices[0].tcgplayer_price,
+      0
+    );
 
-  const setCart = (newCart) => {
-    setCartData(newCart);
-    setCookie('cart', newCart, { path: '/' });
-  };
+  useEffect(() => {
+    const totalQuantity = cartData.cart.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
+    setCartDataAndCookie((prevState) => ({
+      ...prevState,
+      quantity: totalQuantity,
+      totalPrice: getTotalCost(),
+    }));
+  }, [cartData.cart]);
+
+  console.log('CART CONTEXT: ', {
+    cartData,
+    getCardQuantity,
+    addOneToCart,
+    removeOneFromCart,
+    deleteFromCart,
+    getTotalCost,
+    fetchUserCart,
+    createUserCart,
+  });
 
   return (
     <CartContext.Provider
@@ -237,7 +181,6 @@ export const CartProvider = ({ children }) => {
         removeOneFromCart,
         deleteFromCart,
         getTotalCost,
-        setCartData, // Updated here
         fetchUserCart,
         createUserCart,
       }}

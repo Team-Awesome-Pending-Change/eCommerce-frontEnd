@@ -1,12 +1,14 @@
-import React, { useContext } from 'react';
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { Box, Container, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { CartContext } from '../../context/CartContext/CartContext';
-import { useCardStore } from '../../context/CartContext/CardStore';
+import OrderSubmitButton from '../buttons/OrderSubmitButton';
+// import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import StripeCheckout from 'react-stripe-checkout';
 
-function CustomTextField({ id = 'outlined', label, type }) {
+function FormTextField({ id = 'outlined', label, type }) {
   return (
     <TextField
       id={id}
@@ -31,18 +33,54 @@ function CustomTextField({ id = 'outlined', label, type }) {
   );
 }
 
+const CartSummary = ({ quantity, getTotalCost }) => {
+  return (
+    <Box sx={{ alignSelf: 'center' }}>
+      <Box sx={{ marginTop: '2rem' }}>
+        <Typography variant="h6">Items:</Typography>
+        <Typography variant="h6">{`${quantity}`}</Typography>
+      </Box>
+      <Box sx={{ marginTop: '2rem' }}>
+        <Typography variant="h6">Grand Total:</Typography>
+        <Typography variant="h6">${getTotalCost()}</Typography>
+      </Box>
+    </Box>
+  );
+};
+
 const CustomerForm = () => {
-  const { cardsArray } = useCardStore();
-  const {
-    cartData, // Use the updated cart object from the context
-    getCardQuantity,
-    addOneToCart,
-    removeOneFromCart,
-    getTotalCost,
-    loading,
-    error,
-  } = useContext(CartContext);
-  console.log('cartData', cartData);
+  const { getTotalCost, cartData } = useContext(CartContext);
+  // const stripe = useStripe();
+  // const elements = useElements();
+  const [error, setError] = useState(null);
+
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+
+  //   if (!stripe || !elements) {
+  //     return;
+  //   }
+
+  //   const cardElement = elements.getElement(CardElement);
+
+  //   const { error, paymentMethod } = await stripe.createPaymentMethod({
+  //     type: 'card',
+  //     card: cardElement,
+  //   });
+
+  //   if (error) {
+  //     setError(error.message);
+  //   } else {
+  //     // TODO: send the paymentMethod.id to your server
+  //     console.log('PaymentMethod:', paymentMethod.id);
+  //   }
+  // };
+
+  // const Stripe = () => {
+  const onToken = (token) => {
+    console.log(token);
+  };
+  // };
 
   return (
     <Container maxWidth={false}>
@@ -62,50 +100,52 @@ const CustomerForm = () => {
                 marginRight: '1rem',
               }}
             >
-              <Box>
-                <CustomTextField label="First Name" />
-                <CustomTextField label="Last Name" />
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <FormTextField label="First Name" />
+                <FormTextField label="Last Name" />
+                {/* <CardElement
+                  options={{
+                    style: {
+                      base: {
+                        fontSize: '16px',
+                        color: '#424770',
+                        '::placeholder': {
+                          color: '#aab7c4',
+                        },
+                      },
+                      invalid: {
+                        color: '#9e2146',
+                      },
+                    },
+                  }}
+                /> */}
+                <StripeCheckout
+                  token={onToken}
+                  stripeKey={process.env.REACT_APP_STRIPE_KEY}
+                />
               </Box>
-              <CustomTextField label="Street Address" />
-              <CustomTextField label="City" />
-              <CustomTextField label="State" />
-              <CustomTextField type="number" label="Zip" />
+              <FormTextField label="Street Address" />
+              <FormTextField label="City" />
+              <FormTextField label="State" />
+              <FormTextField type="number" label="Zip" />
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <CustomTextField type="number" label="Card Number" />
+                <FormTextField type="number" label="Card Number" />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
                     sx={{ margin: '0.8rem 0' }}
                     label="Expiration Date"
                   />
                 </LocalizationProvider>
-                <CustomTextField type="number" label="CVV" />
+                <FormTextField type="number" label="CVV" />
               </Box>
-              <Box sx={{ alignSelf: 'center' }}>
-                <Box sx={{ marginTop: '2rem' }}>
-                  <Typography variant="h6">Grand Total:</Typography>
-                  <Typography variant="h6">${getTotalCost()}</Typography>
-                </Box>
-                <Button
-                  variant="contained"
-                  sx={{
-                    marginTop: '1rem',
-                    backgroundColor: '#1976d2',
-                    color: '#ffffff',
-                    '&:hover': {
-                      backgroundColor: '#1565c0',
-                    },
-                    boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.1)',
-                  }}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    alert('Thank you for your purchase!');
-                  }}
-                >
-                  Submit Order
-                </Button>
-              </Box>
+              <CartSummary
+                quantity={cartData.quantity}
+                getTotalCost={getTotalCost}
+              />
+              {/* <OrderSubmitButton onClick={handleSubmit} /> */}
+              <OrderSubmitButton />
             </Box>
           </Box>
         </form>

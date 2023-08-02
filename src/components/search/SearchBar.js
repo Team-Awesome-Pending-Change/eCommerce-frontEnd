@@ -1,23 +1,11 @@
-import {
-  Select,
-  MenuItem,
-  Input,
-  Box,
-  Grid,
-  Container,
-  Button,
-  Typography,
-  FormControl,
-  InputLabel,
-} from '@mui/material';
-import { useReducer } from 'react';
-import { useDispatch } from 'react-redux';
-import ProductCard from '../cards/ProductCard';
-import axios from 'axios';
-import {
-  CardStoreProvider,
-  useCardStore,
-} from '../../context/CartContext/CardStore.js'; // import CardStoreProvider
+import React, { useState } from 'react';
+import { Grid, Box, Typography, Container } from '@mui/material';
+import { useCardStore } from '../../context/CardContext/CardStore';
+import SearchButton from '../buttons/SearchButton';
+import CardNameInput from '../other/CardNameInput';
+import CustomSelector from '../other/CustomSelector';
+// import CardNameInput from '../input/CardNameInput';
+// import CustomSelector from '../selector/CustomSelector';
 
 const initialState = {
   name: '',
@@ -27,49 +15,9 @@ const initialState = {
   level: '',
 };
 
-function reducer(state, { field, value }) {
-  return {
-    ...state,
-    [field]: value,
-  };
-}
-
-const SearchBar = ({ filteredCards, setFilteredCards, ...props }) => {
-  const [searchParams, dispatchState] = useReducer(reducer, initialState);
-  const { setCardsArray } = useCardStore();
-
-  const handleRequest = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_SERVER}/api/cards/ygopro`,
-        searchParams
-      );
-
-      if (response.data.data) {
-        const cards = response.data.data;
-        setFilteredCards(cards);
-
-        // Use the CardStore context's function to update cardsArray
-        setCardsArray(cards);
-      } else {
-        setFilteredCards([]);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const getRandomCard = () => {
-    const randomIndex = Math.floor(Math.random() * filteredCards.length);
-    const randomCardData = filteredCards[randomIndex];
-    return randomCardData;
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      handleRequest();
-    }
-  };
+const SearchBar = () => {
+  const [searchParams, setSearchParams] = useState(initialState);
+  const { handleRequest } = useCardStore();
 
   const levels = [
     'Unset',
@@ -99,36 +47,7 @@ const SearchBar = ({ filteredCards, setFilteredCards, ...props }) => {
     'Wind',
   ];
 
-  const handleChange =
-    (name) =>
-    ({ target: { value } }) => {
-      dispatchState({
-        field: name,
-        value: value.toLowerCase() === 'unset' ? '' : value,
-      });
-    };
-
-  const renderCustomSelector = (label, name, values) => (
-    <Grid item xs={12} sm={6} md={3}>
-      <FormControl fullWidth variant="filled">
-        <InputLabel id={name}>{label}</InputLabel>
-        <Select
-          labelId={name}
-          defaultValue="Unset"
-          onChange={handleChange(name)}
-        >
-          {values.map((value) => (
-            <MenuItem key={value} value={value}>
-              {value}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </Grid>
-  );
-
   return (
-    // <CardStoreProvider searchParams={searchParams}>
     <Box
       sx={{
         padding: 2,
@@ -143,39 +62,63 @@ const SearchBar = ({ filteredCards, setFilteredCards, ...props }) => {
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Input
-              fullWidth
-              placeholder="Type card name"
-              onChange={handleChange('name')}
-              onKeyDown={handleKeyDown}
+            <CardNameInput
+              value={searchParams.name}
+              setValue={(newValue) =>
+                setSearchParams((prevState) => ({
+                  ...prevState,
+                  name: newValue,
+                }))
+              }
+              handleRequest={() => handleRequest(searchParams)}
             />
           </Grid>
-          {renderCustomSelector('Level', 'level', levels)}
-          {renderCustomSelector('Race', 'race', races)}
-          {renderCustomSelector('Type', 'type', types)}
-          {renderCustomSelector('Attribute', 'attribute', attributes)}
-          <Grid item xs={12}>
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleRequest}
-            >
-              Search
-            </Button>
-          </Grid>
+          <CustomSelector
+            label="Level"
+            name="level"
+            value={searchParams.level}
+            setValue={(newValue) =>
+              setSearchParams((prevState) => ({
+                ...prevState,
+                level: newValue,
+              }))
+            }
+            values={levels}
+          />
+          <CustomSelector
+            label="Race"
+            name="race"
+            value={searchParams.race}
+            setValue={(newValue) =>
+              setSearchParams((prevState) => ({ ...prevState, race: newValue }))
+            }
+            values={races}
+          />
+          <CustomSelector
+            label="Type"
+            name="type"
+            value={searchParams.type}
+            setValue={(newValue) =>
+              setSearchParams((prevState) => ({ ...prevState, type: newValue }))
+            }
+            values={types}
+          />
+          <CustomSelector
+            label="Attribute"
+            name="attribute"
+            value={searchParams.attribute}
+            setValue={(newValue) =>
+              setSearchParams((prevState) => ({
+                ...prevState,
+                attribute: newValue,
+              }))
+            }
+            values={attributes}
+          />
+          <SearchButton searchParams={searchParams} />
         </Grid>
-        {/* <Grid container spacing={2}>
-          {Array.isArray(filteredCards) &&
-            filteredCards.map((card, index) => (
-              <Grid item key={card.id} xs={12} sm={6} md={4}>
-                <ProductCard cardInfo={card} index={index} {...props} />
-              </Grid>
-            ))}
-        </Grid> */}
       </Container>
     </Box>
-    // </CardStoreProvider>
   );
 };
 

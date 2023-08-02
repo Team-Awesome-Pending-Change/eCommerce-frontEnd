@@ -10,7 +10,53 @@ import CartContent from '../components/content/CartContent';
 import CustomerForm from '../components/forms/CustomerForm';
 import { CartContext } from '../context/CartContext/CartContext';
 import { BeatLoader } from 'react-spinners';
-// import { useCardStore } from '../context/CartContext/CardStore';
+
+const LoadingIndicator = () => {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}
+    >
+      <BeatLoader color={'#123abc'} loading={true} size={24} />
+    </div>
+  );
+};
+
+const ErrorIndicator = ({ error }) => {
+  return <div>Error: {error}</div>;
+};
+
+const CartContentContainer = ({
+  cartData,
+  calculateTotalPrice,
+  onQuantityChange,
+}) => {
+  return (
+    <Box sx={{ flex: 1, marginRight: '2rem', flexGrow: '1' }}>
+      {cartData.length > 0 ? (
+        <CartContent
+          cartData={cartData}
+          calculateTotalPrice={calculateTotalPrice}
+          onQuantityChange={onQuantityChange}
+        />
+      ) : (
+        <LoadingIndicator />
+      )}
+    </Box>
+  );
+};
+
+const CustomerFormContainer = ({ calculateTotalPrice }) => {
+  return (
+    <Box sx={{ flex: 1 }}>
+      <CustomerForm calculateTotalPrice={calculateTotalPrice} />
+    </Box>
+  );
+};
 
 const CartPage = () => {
   const [cookies] = useCookies(['userCookie']);
@@ -18,20 +64,13 @@ const CartPage = () => {
   const userId = user?.id;
 
   const {
-    cartData, // Use the updated cart object from the context
-    getCardQuantity,
+    cartData,
     addOneToCart,
     removeOneFromCart,
     getTotalCost,
     loading,
     error,
   } = useContext(CartContext);
-
-  // const { getCardData } = useContext(useCardStore()); // Using useCardStore here instead of CartContext
-  // const { getRandomCard } = useCardStore();
-  // const randomCard = getRandomCard();
-  // console.log('randomCard', randomCard);
-  console.log('cartData', cartData);
 
   const [pageLoading, setPageLoading] = useState(true);
 
@@ -40,18 +79,7 @@ const CartPage = () => {
   }, [cartData, userId]);
 
   if (pageLoading || loading) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <BeatLoader color={'#123abc'} loading={true} size={24} />
-      </div>
-    );
+    return <LoadingIndicator />;
   }
 
   const calculateTotalPrice = getTotalCost();
@@ -69,7 +97,7 @@ const CartPage = () => {
   };
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <ErrorIndicator error={error} />;
   }
 
   return (
@@ -91,24 +119,14 @@ const CartPage = () => {
                 flexGrow: '1',
               }}
             >
-              <Box sx={{ flex: 1, marginRight: '2rem', flexGrow: '1' }}>
-                {cartData.cart ? (
-                  <CartContent
-                    // cartData={cartData.cart.map((item) => ({
-                    //   ...getCardData(item.id),
-                    //   quantity: getCardQuantity(item.id),
-                    // }))}
-                    cartData={cartData.cart}
-                    calculateTotalPrice={calculateTotalPrice}
-                    onQuantityChange={handleModifyItemInCart}
-                  />
-                ) : (
-                  <div>Loading cart data...</div>
-                )}
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <CustomerForm calculateTotalPrice={calculateTotalPrice} />
-              </Box>
+              <CartContentContainer
+                cartData={cartData.cart}
+                calculateTotalPrice={calculateTotalPrice}
+                onQuantityChange={handleModifyItemInCart}
+              />
+              <CustomerFormContainer
+                calculateTotalPrice={calculateTotalPrice}
+              />
             </Box>
           </CardContent>
         </CardElement>

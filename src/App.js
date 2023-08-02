@@ -8,10 +8,11 @@ import { ThemeProvider } from '@mui/material/styles';
 
 import Header from './components/headings/header/Header';
 import Footer from './components/headings/footer/Footer';
-import Home from './pages/Home';
-import Store from './pages/Store';
+import Home from './pages/HomePage';
+import Store from './pages/StorePage';
 import theme from './assets/styles/themes';
 import CartPage from './pages/CartPage';
+import DeckBuilderPage from './pages/DeckBuilderPage';
 
 const App = () => {
   const [activeUserCartId, setActiveUserCartId] = useState(null);
@@ -51,6 +52,7 @@ const App = () => {
               />
             }
           />
+          <Route exact path="/deckbuilder" element={<DeckBuilderPage />} />
         </Routes>
         <Footer />
       </ThemeProvider>

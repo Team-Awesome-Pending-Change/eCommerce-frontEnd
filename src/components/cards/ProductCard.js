@@ -1,114 +1,97 @@
 import { Card, Button, Grid, CardContent, CardActions } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { CartContext } from '../../context/CartContext/CartContext';
 import { useContext, useState } from 'react';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import placeholderImage from '../../assets/placholder.jpeg';
 import CardModal from '../modals/CardModal';
+import { CartContext } from '../../context/CartContext/CartContext';
+import CartActionButtons from '../buttons/CartActionButtons';
 
 const useStyles = makeStyles({
   card: {
-    maxWidth: 345,
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '100%',
+    minHeight: 300,
     margin: '16px',
     padding: '16px',
+  },
+  media: {
+    flex: 0.75, // 3/4 of the card
+  },
+  content: {
+    flex: 0.25, // 1/4 of the card
   },
   button: {
     margin: '0 8px',
   },
   largerButton: {
-    // Added new style for larger buttons
     margin: '0 8px',
-    padding: '10px', // Adjust padding as required
-    fontSize: '20px', // Adjust font size as required
+    padding: '10px',
+    fontSize: '20px',
+  },
+  actionButtons: {
+    // Custom styles for CartActionButtons in ProductCard go here
+    backgroundColor: '#f5f5f5',
+    padding: '10px',
+    margin: '10px 0',
+    borderRadius: '4px',
   },
 });
 
-const ProductCard = ({ cardInfo, index, ...props }) => {
-  if (!cardInfo) {
-    // If the cardInfo is undefined, handle the case gracefully (optional)
-    return <div>Card data not available.</div>;
-  }
+const ProductCard = ({ card, page }) => {
+  const { cartData, getCardQuantity } = useContext(CartContext);
+  console.log('card', card);
+  const classes = useStyles();
 
-  const { id, name } = cardInfo;
+  const { id, name } = card;
   const [isCardModalOpen, setCardModalOpen] = useState(false);
   const openCardModal = () => setCardModalOpen(true);
   const closeCardModal = () => setCardModalOpen(false);
-
-  const { getCardQuantity, addOneToCart, removeOneFromCart, deleteFromCart } =
-    useContext(CartContext);
-
-  const productQuantity = cardInfo.id ? getCardQuantity(cardInfo) : 0;
-  // const productQuantity = cardInfo.id ? cardInfo.quantity : 0;
-  const imgUrl = cardInfo?.card_images?.[0]?.image_url || '';
-  const classes = useStyles();
+  const productQuantity = getCardQuantity(card?.id);
+  console.log('productQuantity', productQuantity);
+  const imgUrl = card?.card_images?.[0]?.image_url || placeholderImage;
 
   return (
-    <Card className={classes.card}>
+    <Card key={id} className={classes.card}>
       <CardMedia
+        className={classes.media}
         component="img"
-        alt={cardInfo?.name}
-        height="140"
-        image={imgUrl || placeholderImage}
+        alt={name}
+        image={imgUrl}
       />
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          {cardInfo?.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {cardInfo?.card_prices?.[0]?.tcgplayer_price}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Button size="small" color="primary" onClick={openCardModal}>
-          Product Details
-        </Button>
-        <CardModal
-          isOpen={isCardModalOpen}
-          onClose={closeCardModal}
-          cardInfo={cardInfo}
-        />
-        {productQuantity > 0 ? (
-          <>
-            <Grid container>
-              <Grid item xs={6}>
-                In Cart: {productQuantity}
-              </Grid>
-              <Grid item xs={6}>
-                <Button
-                  onClick={() => addOneToCart(cardInfo)}
-                  className={classes.largerButton} // Used largerButton class
-                >
-                  +
-                </Button>
-                <Button
-                  onClick={() => removeOneFromCart(cardInfo)}
-                  className={classes.largerButton} // Used largerButton class
-                >
-                  -
-                </Button>
-              </Grid>
-            </Grid>
-            {/* <Button
-              variant="contained"
-              color="secondary"
-              onClick={() => deleteFromCart(cardInfo)}
-              className={classes.button}
-            >
-              Remove from cart
-            </Button> */}
-          </>
-        ) : (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => addOneToCart(cardInfo)}
-            className={classes.button}
-          >
-            Add To Cart
+      <div className={classes.content}>
+        <CardContent>
+          <Typography gutterBottom variant="h5" component="div">
+            {name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Price: {card?.card_prices?.[0]?.tcgplayer_price}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Quantity:{' '}
+            {productQuantity.quantityOfSameId > 0
+              ? productQuantity.quantityOfSameId
+              : 'Not in cart'}
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Button size="small" color="primary" onClick={openCardModal}>
+            Product Details
           </Button>
-        )}
-      </CardActions>
+          <CardModal
+            isOpen={isCardModalOpen}
+            onClose={closeCardModal}
+            card={card}
+          />
+          <CartActionButtons
+            card={card}
+            productQuantity={productQuantity}
+            className={classes.actionButtons}
+          />
+        </CardActions>
+      </div>
     </Card>
   );
 };

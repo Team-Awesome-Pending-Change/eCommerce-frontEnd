@@ -13,6 +13,22 @@ const HeaderWrapper = styled(AppBar)`
   background-color: #333;
   color: #fff;
   padding: 1rem;
+
+  .menuIcon {
+    color: #fff;
+  }
+
+  .linkToHome {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .navLogo {
+    height: 3em;
+    margin-left: 1em;
+  }
 `;
 
 const ToolbarWrapper = styled(Toolbar)`
@@ -52,13 +68,13 @@ function Header() {
             color="inherit"
             aria-label="menu"
             onClick={handleDrawerOpen}
-            className="mobileMenuIcon"
+            className="menuIcon mobileMenuIcon"
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6">
-            <Link to="/home" style={{ color: '#fff' }}>
-              <img src={logo} alt="Logo" style={{ height: '3em' }} />
+            <Link to="/home" className="linkToHome">
+              <img src={logo} className="navLogo" alt="Logo" />
             </Link>
           </Typography>
         </div>

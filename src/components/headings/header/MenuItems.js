@@ -29,6 +29,19 @@ const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   },
 }));
 
+const StyledLink = styled(Link)(({ theme }) => ({
+  color: '#000',
+  textDecoration: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  width: '100%',
+  height: '100%',
+}));
+
+// const StyledHomeIcon = styled(HomeIcon)({
+//   fontSize: '1em', // or any other value you want
+// });
+
 function MenuItems({
   isLoggedIn,
   handleCartIconClick,
@@ -39,43 +52,49 @@ function MenuItems({
   return (
     <>
       <StyledMenuItem key="home">
-        <Link to="/home" style={{ color: '#000', textDecoration: 'none' }}>
+        <StyledLink to="/home">
           <HomeIcon /> Home
-        </Link>
+        </StyledLink>
       </StyledMenuItem>
       {isLoggedIn && (
         <StyledMenuItem key="store">
-          <Link to="/store" style={{ color: '#000', textDecoration: 'none' }}>
+          <StyledLink
+            to="/store"
+            style={{ color: '#000', textDecoration: 'none' }}
+          >
             <StoreIcon /> Store
-          </Link>
+          </StyledLink>
         </StyledMenuItem>
       )}
       {isLoggedIn && (
         <StyledMenuItem key="deckbuilder">
-          <Link
+          <StyledLink
             to="/deckbuilder"
             style={{ color: '#000', textDecoration: 'none' }}
           >
             <DeckOfCardsIcon /> Deck Builder
-          </Link>
+          </StyledLink>
         </StyledMenuItem>
       )}
       <StyledMenuItem onClick={handleCartIconClick} key="cart">
-        <Link to="/cart" style={{ color: '#000', textDecoration: 'none' }}>
+        <StyledLink
+          to="/cart"
+          style={{ color: '#000', textDecoration: 'none' }}
+        >
           <CartIcon /> Cart
-        </Link>
+        </StyledLink>
         {/* <CartModal isOpen={isCartModalOpen} onClose={handleCartIconClick}> */}
         {/* <Stripe /> */}
         {/* </CartModal> */}
       </StyledMenuItem>
       {isLoggedIn && (
         <StyledMenuItem key="profile">
-          <Link
+          <StyledLink
             to="/userprofile"
             style={{ color: '#000', textDecoration: 'none' }}
           >
             <AccountCircleIcon /> User Profile
-          </Link>
+          </StyledLink>
         </StyledMenuItem>
       )}
       {isLoggedIn ? (
